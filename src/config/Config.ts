@@ -286,6 +286,14 @@ export interface BridgeConfigFigma {
     }};
 }
 
+export interface BridgeTraccarConfigYAML {
+    enabled: boolean;
+    urlPrefix: string;
+    userIdPrefix?: string;
+    waitForComplete?: boolean;
+    enableHttpGet?: boolean;
+}
+
 export interface BridgeGenericWebhooksConfigYAML {
     enabled: boolean;
     urlPrefix: string;
@@ -331,6 +339,46 @@ export class BridgeConfigGenericWebhooks {
 
 }
 
+export interface BridgeTraccarConfigYAML {
+    enabled: boolean;
+    urlPrefix: string;
+    userIdPrefix?: string;
+    waitForComplete?: boolean;
+    enableHttpGet?: boolean;
+}
+
+export class BridgeConfigTraccar {
+    public readonly enabled: boolean;
+
+    @hideKey()
+    public readonly parsedUrlPrefix: URL;
+    public readonly urlPrefix: () => string;
+
+    public readonly userIdPrefix?: string;
+    public readonly waitForComplete?: boolean;
+    public readonly enableHttpGet: boolean;
+    constructor(yaml: BridgeTraccarConfigYAML) {
+        this.enabled = yaml.enabled || false;
+        this.enableHttpGet = yaml.enableHttpGet || false;
+        try {
+            this.parsedUrlPrefix = makePrefixedUrl(yaml.urlPrefix);
+            this.urlPrefix = () => { return this.parsedUrlPrefix.href; }
+        } catch (err) {
+            throw new ConfigError("traccar.urlPrefix", "is not defined or not a valid URL");
+        }
+        this.userIdPrefix = yaml.userIdPrefix;
+        this.waitForComplete = yaml.waitForComplete;
+    }
+
+    @hideKey()
+    public get publicConfig() {
+        return {
+            userIdPrefix: this.userIdPrefix,
+            waitForComplete: this.waitForComplete,
+        }
+    }
+
+}
 
 interface BridgeWidgetConfigYAML {
     publicUrl: string;
@@ -464,6 +512,7 @@ export interface BridgeConfigRoot {
     experimentalEncryption?: BridgeConfigEncryption;
     figma?: BridgeConfigFigma;
     feeds?: BridgeConfigFeedsYAML;
+    traccar?: BridgeTraccarConfigYAML;
     generic?: BridgeGenericWebhooksConfigYAML;
     github?: BridgeConfigGitHubYAML;
     gitlab?: BridgeConfigGitLabYAML;
@@ -505,6 +554,8 @@ export class BridgeConfig {
     public readonly gitlab?: BridgeConfigGitLab;
     @configKey("Configure this to enable Jira support. Only specify `url` if you are using a On Premise install (i.e. not atlassian.com)", true)
     public readonly jira?: BridgeConfigJira;
+    @configKey("Support for Traccar events", true)
+    public readonly traccar?: BridgeConfigTraccar;
     @configKey(`Support for generic webhook events.
 'allowJsTransformationFunctions' will allow users to write short transformation snippets in code, and thus is unsafe in untrusted environments
 `, true)
@@ -553,6 +604,7 @@ export class BridgeConfig {
         this.gitlab = configData.gitlab && new BridgeConfigGitLab(configData.gitlab);
         this.figma = configData.figma;
         this.jira = configData.jira && new BridgeConfigJira(configData.jira);
+        this.traccar = configData.traccar && new BridgeConfigTraccar(configData.traccar);
         this.generic = configData.generic && new BridgeConfigGenericWebhooks(configData.generic);
         this.feeds = configData.feeds && new BridgeConfigFeeds(configData.feeds);
         this.provisioning = configData.provisioning;
@@ -592,8 +644,8 @@ export class BridgeConfig {
             log.warn(`You have not configured any permissions for the bridge, which by default means all users on ${this.bridge.domain} have admin levels of control. Please adjust your config.`);
         }
 
-        if (!this.github && !this.gitlab && !this.jira && !this.generic && !this.figma && !this.feeds) {
-            throw Error("Config is not valid: At least one of GitHub, GitLab, JIRA, Figma, feeds or generic hooks must be configured");
+        if (!this.github && !this.gitlab && !this.jira && !this.traccar && !this.generic && !this.figma && !this.feeds) {
+            throw Error("Config is not valid: At least one of GitHub, GitLab, JIRA, Figma, feeds, Traccar or generic hooks must be configured");
         }
 
         // TODO: Formalize env support
@@ -730,6 +782,9 @@ remove "useLegacySledStore" from your configuration file, and restart Hookshot.
         if (this.figma) {
             services.push("figma");
         }
+        if (this.traccar && this.traccar.enabled) {
+            services.push("traccar");
+        }
         if (this.generic && this.generic.enabled) {
             services.push("generic");
         }
@@ -750,6 +805,9 @@ remove "useLegacySledStore" from your configuration file, and restart Hookshot.
         switch (serviceName) {
             case "feeds":
                 config = this.feeds?.publicConfig;
+                break;
+            case "traccar":
+                config = this.traccar?.publicConfig;
                 break;
             case "generic":
                 config = this.generic?.publicConfig;

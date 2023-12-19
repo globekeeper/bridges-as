@@ -29,7 +29,9 @@ async function start() {
         timestampFormat: config.logging.timestampFormat
     });
     LogService.setLogger(Logger.botSdkLogger);
-
+    log.debug("🐛 DEBUGGING: Starting bridge with config: ", JSON.stringify(config));
+    log.debug("🐛 DEBUGGING: Starting bridge with registration file: ", JSON.stringify(registration));
+    
     const {appservice, storage} = getAppservice(config, registration);
 
     if (config.queue.monolithic) {

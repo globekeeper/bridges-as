@@ -1,4 +1,5 @@
 export * from "./GenericHook";
+export * from "./TraccarHook";
 export * from "./GithubDiscussion";
 export * from "./GithubDiscussionSpace";
 export * from "./GithubIssue";

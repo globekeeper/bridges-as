@@ -101,6 +101,13 @@ export const DefaultConfigRoot: BridgeConfigRoot = {
             redirect_uri: `${hookshotWebhooksUrl}/bridge_oauth/`,
         },
     },
+    traccar: {
+        enabled: false,
+        enableHttpGet: false,
+        urlPrefix: `${hookshotWebhooksUrl}/traccar/`,
+        userIdPrefix: "_traccar_",
+        waitForComplete: false,
+    },
     generic: {
         allowJsTransformationFunctions: false,
         enabled: false,

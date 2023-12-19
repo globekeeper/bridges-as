@@ -1,7 +1,7 @@
 // We need to instantiate some functions which are not directly called, which confuses typescript.
 import { BotCommands, botCommand, compileBotCommands, HelpFunction } from "../BotCommands";
 import { CommandConnection } from "./CommandConnection";
-import { GenericHookConnection, GitHubRepoConnection, JiraProjectConnection, JiraProjectConnectionState } from ".";
+import { TraccarConnection, GenericHookConnection, GitHubRepoConnection, JiraProjectConnection, JiraProjectConnectionState } from ".";
 import { CommandError } from "../errors";
 import { BridgePermissionLevel } from "../config/Config";
 import markdown from "markdown-it";
@@ -204,6 +204,31 @@ export class SetupConnection extends CommandConnection {
 
         await this.client.sendStateEvent(this.roomId, eventType, safeUrl, {});
         return this.client.sendHtmlNotice(this.roomId, md.renderInline(`Room no longer bridged to Jira project \`${safeUrl}\`.`));
+    }
+
+    @botCommand("traccar", { help: "Create an inbound Traccar webhook.", requiredArgs: ["name"], includeUserId: true, category: "traccar"})
+    public async onTraccarWebhook(userId: string, name: string) {
+        if (!this.config.traccar?.enabled) {
+            throw new CommandError("not-configured", "The bridge is not configured to support Traccar webhooks.");
+        }
+
+        await this.checkUserPermissions(userId, "traccar", GitHubRepoConnection.CanonicalEventType);
+
+        if (!name || name.length < 3 || name.length > 64) {
+            throw new CommandError("Bad traccar webhook name", "A traccar webhook name must be between 3-64 characters.");
+        }
+        const c = await TraccarConnection.provisionConnection(this.roomId, userId, {name}, this.provisionOpts);
+        this.pushConnections(c.connection);
+        const url = new URL(c.connection.hookId, this.config.traccar.parsedUrlPrefix);
+        const adminRoom = await this.getOrCreateAdminRoom(this.intent, userId);
+        const safeRoomId = encodeURIComponent(this.roomId);
+        await adminRoom.sendNotice(
+            `You have bridged the Traccar webhook "${name}" in https://matrix.to/#/${safeRoomId} .\n` +
+            // Line break before and no full stop after URL is intentional.
+            // This makes copying and pasting the URL much easier.
+            `Please configure your Traccar webhook source to use\n${url}`
+        );
+        return this.client.sendNotice(this.roomId, `Room configured to bridge webhooks. See admin room for secret url.`);
     }
 
     @botCommand("webhook", { help: "Create an inbound webhook.", requiredArgs: ["name"], includeUserId: true, category: "generic"})
