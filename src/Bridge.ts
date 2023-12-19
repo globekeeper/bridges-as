@@ -10,7 +10,7 @@ import { GetIssueResponse, GetIssueOpts } from "./Gitlab/Types"
 import { GithubInstance } from "./github/GithubInstance";
 import { IBridgeStorageProvider } from "./Stores/StorageProvider";
 import { IConnection, GitHubDiscussionSpace, GitHubDiscussionConnection, GitHubUserSpace, JiraProjectConnection, GitLabRepoConnection,
-    GitHubIssueConnection, GitHubProjectConnection, GitHubRepoConnection, GitLabIssueConnection, FigmaFileConnection, FeedConnection, GenericHookConnection, WebhookResponse } from "./Connections";
+    GitHubIssueConnection, GitHubProjectConnection, GitHubRepoConnection, GitLabIssueConnection, FigmaFileConnection, FeedConnection, GenericHookConnection, TraccarConnection, WebhookResponse } from "./Connections";
 import { IGitLabWebhookIssueStateEvent, IGitLabWebhookMREvent, IGitLabWebhookNoteEvent, IGitLabWebhookPushEvent, IGitLabWebhookReleaseEvent, IGitLabWebhookTagPushEvent, IGitLabWebhookWikiPageEvent } from "./Gitlab/WebhookTypes";
 import { JiraIssueEvent, JiraIssueUpdatedEvent, JiraVersionEvent } from "./jira/WebhookTypes";
 import { JiraOAuthResult } from "./jira/Types";
@@ -37,6 +37,7 @@ import { ListenerService } from "./ListenerService";
 import { SetupConnection } from "./Connections/SetupConnection";
 import { JiraOAuthRequestCloud, JiraOAuthRequestOnPrem, JiraOAuthRequestResult } from "./jira/OAuth";
 import { GenericWebhookEvent, GenericWebhookEventResult } from "./generic/types";
+import { TraccarEvent, TraccarEventResult } from "./traccar/types";
 import { SetupWidget } from "./Widgets/SetupWidget";
 import { FeedEntry, FeedError, FeedReader, FeedSuccess } from "./feeds/FeedReader";
 import PQueue from "p-queue";
@@ -152,6 +153,9 @@ export class Bridge {
             }
             if (this.config.generic) {
                 this.connectionManager.registerProvisioningConnection(GenericHookConnection);
+            }
+            if (this.config.traccar) {
+                this.connectionManager.registerProvisioningConnection(TraccarConnection);
             }
             this.provisioningApi = new Provisioner(
                 this.config.provisioning,
@@ -655,6 +659,76 @@ export class Bridge {
                     sender: "Bridge",
                     messageId,
                     eventName: "response.generic-webhook.event",
+                });
+            }
+        });
+
+        this.queue.on<TraccarEvent>("traccar-webhook.incoming", async (msg) => {
+            // TODO: Make sure this is exactly what we want right here
+            // TODO: Validate payload (GeoJSON)?
+            log.debug(`🐛 DEBUGGING: started traccar-webhook.incoming queue`);
+            const { data, messageId } = msg;
+            const connections = connManager.getConnectionsForTraccar(data.hookId);
+            log.debug(`🐛 DEBUGGING: incoming traccar-webhook for ${connections.map(c => c.toString()).join(', ') || '[empty]'}`);
+            
+            if (!connections.length) {
+                await this.queue.push<TraccarEventResult>({
+                    data: {notFound: true},
+                    sender: "Bridge",
+                    messageId: messageId,
+                    eventName: "response.traccar-webhook.incoming",
+                });
+            }
+
+            let didPush = false;
+            await Promise.all(connections.map(async (c, index) => {
+                try {
+                    // TODO: Support traccar hook responses to more than one room
+                    if (index !== 0) {
+                        await c.onTraccarHook(data.hookData);
+                        return;
+                    }
+                    let successful: boolean|null = null;
+                    let response: WebhookResponse|undefined;
+                    if (this.config.traccar?.waitForComplete || c.waitForComplete) {
+                        const result = await c.onTraccarHook(data.hookData);
+                        successful = result.successful;
+                        response = result.response;
+                        await this.queue.push<TraccarEventResult>({
+                            data: {successful, response},
+                            sender: "Bridge",
+                            messageId,
+                            eventName: "response.traccar-webhook.incoming",
+                        });
+                    } else {
+                        await this.queue.push<TraccarEventResult>({
+                            data: {},
+                            sender: "Bridge",
+                            messageId,
+                            eventName: "response.traccar-webhook.incoming",
+                        });
+                        await c.onTraccarHook(data.hookData);
+                    }
+                    didPush = true;
+                }
+                catch (ex) {
+                    log.warn(`Failed to handle traccar webhook`, ex);
+                    Metrics.connectionsEventFailed.inc({
+                        event: "traccar-webhook.incoming",
+                        connectionId: c.connectionId
+                    });
+                }
+            }));
+
+            // We didn't manage to complete sending the event or even sending a failure.
+            if (!didPush) {
+                await this.queue.push<TraccarEventResult>({
+                    data: {
+                        successful: false
+                    },
+                    sender: "Bridge",
+                    messageId,
+                    eventName: "response.traccar-webhook.incoming",
                 });
             }
         });
