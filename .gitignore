@@ -21,3 +21,6 @@ book
 # Coverage
 coverage
 .nyc_output
+
+# Environment variable directory
+data/
