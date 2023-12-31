@@ -26,10 +26,10 @@ export interface LastResultFail {
 
 
 export interface FeedConnectionState extends IConnectionState {
-    url:    string;
-    label?: string;
-    template?: string;
-    notifyOnFailure?: boolean;
+    url: string;
+    label: string|undefined;
+    template: string|undefined;
+    notifyOnFailure: boolean|undefined;
 }
 
 export interface FeedConnectionSecrets {
@@ -97,8 +97,11 @@ export class FeedConnection extends BaseConnection implements IConnection {
             }
         }
 
+        if (typeof data.notifyOnFailure !== 'undefined' && typeof data.notifyOnFailure !== 'boolean') {
+            throw new ApiError('notifyOnFailure must be a boolean', ErrCode.BadValue);
+        }
 
-        return { url, label: data.label, template: data.template };
+        return { url, label: data.label, template: data.template, notifyOnFailure: data.notifyOnFailure };
     }
 
     static async provisionConnection(roomId: string, _userId: string, data: Record<string, unknown> = {}, { intent, config }: ProvisionConnectionOpts) {
@@ -133,6 +136,8 @@ export class FeedConnection extends BaseConnection implements IConnection {
             config: {
                 url: this.feedUrl,
                 label: this.state.label,
+                template: this.state.template,
+                notifyOnFailure: this.state.notifyOnFailure,
             },
             secrets: {
                 lastResults: this.lastResults,

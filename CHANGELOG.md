@@ -1,3 +1,64 @@
+5.1.1 (2023-12-29)
+==================
+
+Bugfixes
+--------
+
+- Fix widgets not loading when bound to the same listener as "webhooks". ([\#872](https://github.com/matrix-org/matrix-hookshot/issues/872))
+
+
+5.1.0 (2023-12-29)
+==================
+
+Bugfixes
+--------
+
+- Fix feed widget not showing the true values for template / notify on failure. ([\#866](https://github.com/matrix-org/matrix-hookshot/issues/866))
+- Fix widgets failing with "Request timed out". ([\#870](https://github.com/matrix-org/matrix-hookshot/issues/870))
+
+
+Deprecations and Removals
+-------------------------
+
+- The GoNEB migrator is being removed in this release. Users wishing to migrate from GoNEB deployments should use <=5.0.0 and then upgrade. ([\#867](https://github.com/matrix-org/matrix-hookshot/issues/867))
+
+
+Internal Changes
+----------------
+
+- Integrate end to end testing. ([\#869](https://github.com/matrix-org/matrix-hookshot/issues/869))
+
+
+5.0.0 (2023-12-27)
+==================
+
+Features
+--------
+
+- Warn if the bot does not have permissions to talk in a room. ([\#852](https://github.com/matrix-org/matrix-hookshot/issues/852))
+- Support dark mode for the widget interface. ([\#863](https://github.com/matrix-org/matrix-hookshot/issues/863))
+- Add `webhook list` and `webhook remove` commands. ([\#866](https://github.com/matrix-org/matrix-hookshot/issues/866))
+
+
+Bugfixes
+--------
+
+- Fix notify on failure not being toggleable in the feeds widget interface. ([\#865](https://github.com/matrix-org/matrix-hookshot/issues/865))
+
+
+Improved Documentation
+----------------------
+
+- Documentation tidyups. ([\#855](https://github.com/matrix-org/matrix-hookshot/issues/855), [\#857](https://github.com/matrix-org/matrix-hookshot/issues/857), [\#858](https://github.com/matrix-org/matrix-hookshot/issues/858), [\#859](https://github.com/matrix-org/matrix-hookshot/issues/859), [\#860](https://github.com/matrix-org/matrix-hookshot/issues/860))
+- Generally tidy up and improve metrics documentation. ([\#856](https://github.com/matrix-org/matrix-hookshot/issues/856))
+
+
+Deprecations and Removals
+-------------------------
+
+- Drop support for Node 18 and start supporting Node 21. ([\#862](https://github.com/matrix-org/matrix-hookshot/issues/862))
+
+
 4.7.0 (2023-12-06)
 ==================
 
