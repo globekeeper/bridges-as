@@ -15,6 +15,7 @@ import { GitHubOAuthTokenResponse } from "./github/Types";
 import Metrics from "./Metrics";
 import { FigmaWebhooksRouter } from "./figma/router";
 import { GenericWebhooksRouter } from "./generic/Router";
+import { BridgeAuthRouter } from "./bridge_auth/Router";
 import { GithubInstance } from "./github/GithubInstance";
 import QuickLRU from "@alloc/quick-lru";
 
@@ -71,6 +72,9 @@ export class Webhooks extends EventEmitter {
         }
         if (this.config.figma) {
             this.expressRouter.use('/figma', new FigmaWebhooksRouter(this.config.figma, this.queue).getRouter());
+        }
+        if (this.config.bridgeAuth) {
+            this.expressRouter.use('/bridge_auth', new BridgeAuthRouter(this.queue, false, this.config.bridgeAuth.enableHttpGet).getRouter());
         }
         if (this.config.generic) {
             this.expressRouter.use('/webhook', new GenericWebhooksRouter(this.queue, false, this.config.generic.enableHttpGet).getRouter());
@@ -146,6 +150,21 @@ export class Webhooks extends EventEmitter {
         }
     }
 
+    // private async onBridgeAuthPayload(hookId: string, payload: unknown) {
+    //     try {
+    //         await this.queue.push({
+    //             "eventName": "bridge_auth-webhook.incoming",
+    //             sender: "Webhooks",
+    //             data: {
+    //                 hookData: payload,
+    //                 hookId: hookId,
+    //             },
+    //         });
+    //     } catch (err) {
+    //         log.error(`Failed to emit payload ${hookId}: ${err}`);
+    //     }
+    // }
+
     private onPayload(req: Request, res: Response) {
         try {
             let eventName: string|null = null;
@@ -177,6 +196,10 @@ export class Webhooks extends EventEmitter {
             } else if (JiraWebhooksRouter.IsJIRARequest(req)) {
                 res.sendStatus(200);
                 eventName = this.onJiraPayload(body);
+            // } else if (req.url.includes('/bridge_auth')) {
+            //     log.info("bridge_auth hook: got a bridge_auth hook request through the default hooks path");
+            //     res.sendStatus(200);
+            //     this.onBridgeAuthPayload(req.params.hookId, body);
             }
             if (eventName) {
                 this.queue.push({

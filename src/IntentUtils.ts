@@ -2,6 +2,7 @@ import { Logger } from "matrix-appservice-bridge";
 import { Appservice, Intent, MatrixClient } from "matrix-bot-sdk";
 import axios from "axios";
 
+export const allowedCharacters = /^[a-z0-9_\-./=]+$/i;
 const log = new Logger("IntentUtils");
 
 /**

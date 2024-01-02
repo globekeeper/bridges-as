@@ -37,6 +37,13 @@ mdbook build
 sensible-browser book/index.html
 ```
 
+### GlobeKeeper Related Docs (TBD)
+
+[Notion PRD](https://www.notion.so/globekeeper/Integrations-Service-3792bbf7cb0b453380f576a4d1683268?pvs=4)
+For customized setup information visit `setup.md` (TBD).
+
+For debugging toggle auto-attach (`cmnd+shift+p` -> `Debug: Toggle Auto Attach`)
+
 ## Contact
 
 We have a Matrix support room ([#hookshot:half-shot.uk](https://matrix.to/#/#hookshot:half-shot.uk)).
