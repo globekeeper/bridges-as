@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response, Router } from "express";
 import { Logger } from "matrix-appservice-bridge";
 import * as xml from "xml2js";
 import { BridgeAuthEvent, BridgeAuthEventResult } from "./types";
+import { emailFormat } from "../IntentUtils";
 
 type RequestBody = {
     data: {
@@ -23,6 +24,10 @@ export class BridgeAuthRouter {
             return;
         }
         const { username, password } = payload.data;
+        if (!emailFormat.test(username)) {
+            res.status(400).send({ error: "Username has to be a valid email address" });
+            return;
+        }
         this.queue.pushWait<BridgeAuthEvent, BridgeAuthEventResult>({
             eventName: 'bridge_auth.event',
             sender: "bridge_auth",

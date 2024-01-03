@@ -8,7 +8,7 @@ import { ApiError, ErrCode } from "../api";
 import { BaseConnection } from "./BaseConnection";
 import { GetConnectionsResponseItem } from "../provisioning/api";
 import { BridgeConfigAuth } from "../config/Config";
-import { allowedCharacters  } from "../IntentUtils";
+import { matrixUsernameAllowedCharacters  } from "../IntentUtils";
 import { randomUUID } from 'node:crypto';
 import axios from "axios";
 import qs from 'qs';
@@ -124,7 +124,7 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         if (typeof name !== "string") {
             throw new ApiError("'name' must be a string", ErrCode.BadValue);
         }
-        if (!allowedCharacters.test(name)) {
+        if (!matrixUsernameAllowedCharacters.test(name)) {
             throw new ApiError("'name' must consist on a-z, 0-9, or '_ -./=", ErrCode.BadValue);
         }
         return { url, name };
@@ -262,14 +262,14 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
 
     /**
      * Processes an incoming BridgeAuth event.
-     * @param username The original username of the user in the external auth provider.
+     * @param email The original email of the user in the external auth provider.
      * @param password The original password of the user in the external auth provider.
      * @description Used to authenticate the user against the external auth provider, and then either register or login the user against the Connnect homeserver.
      * @returns `true` if the BridgeAuth completed, or `false` if it failed to complete
      * @returns `BridgeAuthResponse` if the BridgeAuth completed, or `undefined` if it failed to complete. Responds with the response from the homeserver auth API call.
      */
-    public async onBridgeAuthHook(username: string, password: string): Promise<{successful: boolean, response?: BridgeAuthResponse}> {
-        const localPart = username.split('@')[0];
+    public async onBridgeAuthHook(email: string, password: string): Promise<{successful: boolean, response?: BridgeAuthResponse}> {
+        const localPart = email.split('@')[0];
         const matrixUsername = `@${localPart}-${this.state.name}:${this.config.domain}`;
         const sender = this.as.getIntentForUserId(matrixUsername);
 
@@ -286,7 +286,7 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
                 },
             };
             await axios.post(this.state.url, qs.stringify({
-                username,
+                email,
                 password,
             }), reqConfig);
             result.unauthorized = false;
@@ -313,9 +313,12 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
             if (ex.errcode === "M_FORBIDDEN") {
                 // User is not registered, register them.
                 try {
+                    // Sending the email and space_id in the request is for adminas to be able to generate an invitation record. Dendrite will not use it.
                     const respRegister = await sender.underlyingClient.doRequest("POST", "/_matrix/client/v3/register", null, {
                         type: "m.login.application_service",
                         username: matrixUsername.substring(1).split(":")[0],
+                        email,
+                        space_id: this.roomId,
                     });
                     result.body = respRegister;
                     const registeredUser = this.as.getIntentForUserId(respRegister.user_id);
