@@ -285,8 +285,9 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
                     'Accept': '*/*',
                 },
             };
+            // TODO: Add ability to configure the login request payload + method.
             await axios.post(this.state.url, qs.stringify({
-                email,
+                username: email,
                 password,
             }), reqConfig);
             result.unauthorized = false;
