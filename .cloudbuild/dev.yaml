@@ -9,4 +9,4 @@ steps:
       - CLOUDSDK_CONTAINER_CLUSTER=synapse
 images:
   - gcr.io/$PROJECT_ID/bridgeas:$COMMIT_SHA
-timeout: 480s
+timeout: 600s
