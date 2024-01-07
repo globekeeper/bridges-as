@@ -8,8 +8,9 @@ import { ApiError, ErrCode } from "../api";
 import { BaseConnection } from "./BaseConnection";
 import { GetConnectionsResponseItem } from "../provisioning/api";
 import { BridgeConfigAuth } from "../config/Config";
-import { matrixUsernameAllowedCharacters  } from "../IntentUtils";
+import { ensureUserIsInRoom, matrixUsernameAllowedCharacters  } from "../IntentUtils";
 import { randomUUID } from 'node:crypto';
+import { MatrixClient } from "matrix-bot-sdk";
 import axios from "axios";
 import qs from 'qs';
 
@@ -270,8 +271,14 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
      */
     public async onBridgeAuthHook(email: string, password: string): Promise<{successful: boolean, response?: BridgeAuthResponse}> {
         const localPart = email.split('@')[0];
-        const matrixUsername = `@${localPart}-${this.state.name}:${this.config.domain}`;
+        let matrixUsername = `@${localPart}-${this.state.name}:${this.config.domain}`;
         const sender = this.as.getIntentForUserId(matrixUsername);
+        let senderCli = sender.underlyingClient;
+        if (senderCli.homeserverUrl == 'http://localhost:8008') {
+            // For testing: we need to make sure that the following requests pass through adminas via haproxy.
+            // As we don't have DNS resolution for homeserver <-> http://localhost:8018, we need to override the homeserverUrl from the config.yml
+            senderCli = new MatrixClient('http://localhost:8018', 'foobarr');
+        }
 
         // Authenticate against GeoDome
         const result = {
@@ -300,22 +307,27 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         // Note: We register users with the `-{{space_id}}` suffix to prevent collisions between users on different spaces.
         // This means that 2 users with the same email address on different spaces will have different usernames on homeserver.
         try {
-            const whoami = await sender.underlyingClient.getWhoAmI()
-            const respLogin = await sender.underlyingClient.doRequest("POST", "/_matrix/client/v3/login", null, {
-
+            const respUsersData = await senderCli.doRequest("GET", `/_globekeeper/admins/users_data?space_id=${this.roomId}&query=${email}`);
+            if (respUsersData?.invitations?.length < 1) {
+                throw new Error("No user associated with the provided email found");
+            } else if (respUsersData?.invitations?.length > 1) {
+                throw new Error("Multiple users are associated with the provided email");
+            }
+            matrixUsername = respUsersData.invitations[0].invitee_id;
+            const respLogin = await senderCli.doRequest("POST", "/_matrix/client/v3/login", null, {
                 type: "m.login.application_service",
                 identifier: {
                     type: "m.id.user",
-                    user: whoami.user_id,
+                    user: matrixUsername,
                 },
             });
             result.body = respLogin;
         } catch (ex) {
-            if (ex.errcode === "M_FORBIDDEN") {
-                // User is not registered, register them.
+            if (ex.message === "No user associated with the provided email found") {
+                // User is not registered, register.
                 try {
                     // Sending the email and space_id in the request is for adminas to be able to generate an invitation record. Dendrite will not use it.
-                    const respRegister = await sender.underlyingClient.doRequest("POST", "/_matrix/client/v3/register", null, {
+                    const respRegister = await senderCli.doRequest("POST", "/_matrix/client/v3/register", null, {
                         type: "m.login.application_service",
                         username: matrixUsername.substring(1).split(":")[0],
                         email,
@@ -323,7 +335,7 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
                     });
                     result.body = respRegister;
                     const registeredUser = this.as.getIntentForUserId(respRegister.user_id);
-                    await registeredUser.joinRoom(this.roomId)
+                    await ensureUserIsInRoom(registeredUser, this.as.botClient, this.roomId);
                 } catch (e) {
                     log.error(`failed to register or join user to space: ${e}`);
                     return { successful: false, response: { body: "failed to register user", unauthorized: true, contentType: "text/plain" } };
