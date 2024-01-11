@@ -188,6 +188,11 @@ export class E2ETestEnv {
                 'hookshot': homeserver.url,
             }
         }
+
+        if (providedConfig?.github) {
+            providedConfig.github.auth.privateKeyFile = keyPath;
+        }
+
         const config = new BridgeConfig({
             bridge: {
                 domain: homeserver.domain,
@@ -228,6 +233,7 @@ export class E2ETestEnv {
             }
         };
         const app = await start(config, registration);
+        app.listener.finaliseListeners();
         
         return new E2ETestEnv(homeserver, app, opts, config, dir);
     }
