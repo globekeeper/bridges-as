@@ -308,7 +308,7 @@ hookshot:
     namespaces:
       rooms: []
       users: []
-    sender_localpart: hookshot
+    sender_localpart: bridgeas
     url: "http://example.com"
     rate_limited: false
   passkey: ""

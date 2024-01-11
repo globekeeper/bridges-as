@@ -10,7 +10,7 @@ import { GetIssueResponse, GetIssueOpts } from "./Gitlab/Types"
 import { GithubInstance } from "./github/GithubInstance";
 import { IBridgeStorageProvider } from "./Stores/StorageProvider";
 import { IConnection, GitHubDiscussionSpace, GitHubDiscussionConnection, GitHubUserSpace, JiraProjectConnection, GitLabRepoConnection,
-    GitHubIssueConnection, GitHubProjectConnection, GitHubRepoConnection, GitLabIssueConnection, FigmaFileConnection, FeedConnection, GenericHookConnection, WebhookResponse } from "./Connections";
+    GitHubIssueConnection, GitHubProjectConnection, GitHubRepoConnection, GitLabIssueConnection, FigmaFileConnection, FeedConnection, GenericHookConnection, BridgeAuthConnection, WebhookResponse } from "./Connections";
 import { IGitLabWebhookIssueStateEvent, IGitLabWebhookMREvent, IGitLabWebhookNoteEvent, IGitLabWebhookPushEvent, IGitLabWebhookReleaseEvent, IGitLabWebhookTagPushEvent, IGitLabWebhookWikiPageEvent } from "./Gitlab/WebhookTypes";
 import { JiraIssueEvent, JiraIssueUpdatedEvent, JiraVersionEvent } from "./jira/WebhookTypes";
 import { JiraOAuthResult } from "./jira/Types";
@@ -37,6 +37,7 @@ import { ListenerService } from "./ListenerService";
 import { SetupConnection } from "./Connections/SetupConnection";
 import { JiraOAuthRequestCloud, JiraOAuthRequestOnPrem, JiraOAuthRequestResult } from "./jira/OAuth";
 import { GenericWebhookEvent, GenericWebhookEventResult } from "./generic/types";
+import { BridgeAuthEvent, BridgeAuthEventResult } from "./bridge_auth/types";
 import { SetupWidget } from "./Widgets/SetupWidget";
 import { FeedEntry, FeedError, FeedReader, FeedSuccess } from "./feeds/FeedReader";
 import PQueue from "p-queue";
@@ -152,6 +153,9 @@ export class Bridge {
             }
             if (this.config.generic) {
                 this.connectionManager.registerProvisioningConnection(GenericHookConnection);
+            }
+            if (this.config.bridgeAuth) {
+                this.connectionManager.registerProvisioningConnection(BridgeAuthConnection);
             }
             this.provisioningApi = new Provisioner(
                 this.config.provisioning,
@@ -655,6 +659,62 @@ export class Bridge {
                     sender: "Bridge",
                     messageId,
                     eventName: "response.generic-webhook.event",
+                });
+            }
+        });
+
+        this.queue.on<BridgeAuthEvent>("bridge_auth.event", async (msg) => {
+            const { data, messageId } = msg;
+            const { username, password } = data;
+            const connections = connManager.getConnectionsForBridgeAuth(data.hookId);
+            
+            if (!connections.length) {
+                await this.queue.push<BridgeAuthEventResult>({
+                    data: {notFound: true},
+                    sender: "bridge_auth",
+                    messageId: messageId,
+                    eventName: "response.bridge_auth.event",
+                });
+            }
+
+            let didPush = false;
+            await Promise.all(connections.map(async (c, index) => {
+                if (index !== 0) {
+                    log.info(`Got more than one connection for bridge auth in space: ${c.roomId}`);
+                    return;
+                }
+                try {
+                    const { successful, response } = await c.onBridgeAuthHook(username, password);
+                    await this.queue.push<BridgeAuthEventResult>({
+                        data: {
+                            successful,
+                            response,
+                            unauthorized: response?.unauthorized ?? true,
+                        },
+                        sender: "bridge_auth",
+                        messageId,
+                        eventName: "response.bridge_auth.event",
+                    });
+                    didPush = true;
+                }
+                catch (ex) {
+                    log.warn(`Failed to handle bridge auth`, ex);
+                    Metrics.connectionsEventFailed.inc({
+                        event: "bridge_auth.event",
+                        connectionId: c.connectionId
+                    });
+                }
+            }));
+
+            // We didn't manage to complete sending the event or even sending a failure.
+            if (!didPush) {
+                await this.queue.push<BridgeAuthEventResult>({
+                    data: {
+                        successful: false
+                    },
+                    sender: "bridge_auth",
+                    messageId,
+                    eventName: "response.bridge_auth.event",
                 });
             }
         });

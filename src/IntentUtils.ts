@@ -2,6 +2,9 @@ import { Logger } from "matrix-appservice-bridge";
 import { Appservice, Intent, MatrixClient } from "matrix-bot-sdk";
 import axios from "axios";
 
+// eslint-disable-next-line max-len
+export const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+export const matrixUsernameAllowedCharacters = /^[a-z0-9_\-./=]+$/i;
 const log = new Logger("IntentUtils");
 
 /**
