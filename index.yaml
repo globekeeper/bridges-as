@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  hookshot:
+  - apiVersion: v2
+    appVersion: 5.1.1
+    created: "2024-01-11T09:45:28.052117257Z"
+    description: Deploy a Matrix Hookshot instance to Kubernetes
+    digest: 4844c6ed60d33a6a0718cc9d4f80723a0df07aec0d4eb7c8c26ef4242686dbc7
+    name: hookshot
+    type: application
+    urls:
+    - https://github.com/globekeeper/bridges-as/releases/download/helm-hookshot-0.1.15/hookshot-0.1.15.tgz
+    version: 0.1.15
+generated: "2024-01-11T09:45:28.052126965Z"
