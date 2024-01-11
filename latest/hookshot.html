@@ -179,6 +179,44 @@
 mdbook build
 sensible-browser book/index.html
 </code></pre>
+<h3 id="globekeeper-related-docs"><a class="header" href="#globekeeper-related-docs">GlobeKeeper Related Docs</a></h3>
+<p><a href="https://www.notion.so/globekeeper/Integrations-Service-3792bbf7cb0b453380f576a4d1683268?pvs=4">Notion PRD</a></p>
+<p>The current GlobeKeeper customization to original hookshot can be divided into 2 different main functionalities:</p>
+<ol>
+<li>
+<p>Provisioning the space-associated bridged-external-authentication:</p>
+<p>This provisioning endpoint is responsible of introducing a new type of service to hookshot, and by triggering the provisioner with that type, the bride will establish a new route that will authenticate/register users from external systems (currently supporting only GeoDome POST login payload) according to the provided external auth provider URL and name and the path-embedded spaceId. This endpoint is authorized using the unique provisioning secret from the config.</p>
+<p><a href="https://globekeeper.postman.co/workspace/GlobeKeeper-Workspace%7Ef5ae58c4-4f28-4de4-accd-be7c7f041c57/request/13078936-153e2f3e-e0a3-44d4-9261-b3ed873d9bc1?active-environment=c409c387-7381-4861-ac2c-aa5f9c8ac1a0">This is the API for provisioning</a> (Should be sent by VCP client when clicking on e.g - &quot;Integrate Space&quot; in the space settings).</p>
+</li>
+<li>
+<p>Actual authentication logic:</p>
+<p>The actual authentication logic that is triggered by the newly created route from the provisioner.
+Making a request to the generated endpoint will execute the following logic:</p>
+<ul>
+<li>Authenticate against the configured external-auth-provider URL (this URL is an argument to the provisioning API) -&gt;</li>
+<li>if authenticated, continues, else it returns 401 -&gt;
+<ul>
+<li>If the user is already registered in Dendrite -&gt; Logs-in and returns homeserver credentials (userId, deviceId and access token)</li>
+<li>If the user isn't already registered in Dendrite -&gt; Registers the user with the format <code>@{{localpart from email}}-{{name of external auth provider, provided in the provisioning API}}:{{homeserverUrl}}</code> -&gt; join the newly created user to the space configured with this bridged-auth and returns homeserver credentials (homeserver name, userId, deviceId and access token)</li>
+</ul>
+</li>
+</ul>
+<p><a href="https://globekeeper.postman.co/workspace/GlobeKeeper-Workspace%7Ef5ae58c4-4f28-4de4-accd-be7c7f041c57/request/13078936-455cf8c0-e1d6-4a41-a6cc-7cafab36084d?active-environment=c409c387-7381-4861-ac2c-aa5f9c8ac1a0">This is the bridged login endpoint</a> (what GeoDome would use essentially):</p>
+</li>
+</ol>
+<h4 id="coming-up"><a class="header" href="#coming-up">Coming-up:</a></h4>
+<ol>
+<li>Traccar integration for supporting incoming GPS devices location updates and streaming them to the homeserver in a way that would allow displaying them on the map in configured rooms.</li>
+<li>... 🤩</li>
+</ol>
+<h3 id="debugging"><a class="header" href="#debugging">Debugging</a></h3>
+<p>For debugging purposes, toggle auto-attach in VS Code:</p>
+<ol>
+<li><code>cmnd+shift+p</code></li>
+<li><code>Debug: Toggle Auto Attach</code></li>
+<li><code>yarn</code></li>
+<li><code>yarn start</code></li>
+</ol>
 <h2 id="contact"><a class="header" href="#contact">Contact</a></h2>
 <p>We have a Matrix support room (<a href="https://matrix.to/#/#hookshot:half-shot.uk">#hookshot:half-shot.uk</a>).</p>
 
