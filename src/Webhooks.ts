@@ -17,6 +17,7 @@ import Metrics from "./Metrics";
 import { FigmaWebhooksRouter } from "./figma/router";
 import { GenericWebhooksRouter } from "./generic/Router";
 import { BridgeAuthRouter } from "./bridge_auth/Router";
+import { TraccarWebhooksRouter } from "./traccar/Router";
 import { GithubInstance } from "./github/GithubInstance";
 import QuickLRU from "@alloc/quick-lru";
 
@@ -85,6 +86,9 @@ export class Webhooks extends EventEmitter {
         }
         if (this.config.bridgeAuth) {
             this.expressRouter.use('/bridge_auth', new BridgeAuthRouter(this.queue, false, this.config.bridgeAuth.enableHttpGet).getRouter());
+        }
+        if (this.config.traccar) {
+            this.expressRouter.use('/traccar', new TraccarWebhooksRouter(this.queue, false, this.config.traccar.enableHttpGet).getRouter());
         }
         if (this.config.generic) {
             this.expressRouter.use('/webhook', new GenericWebhooksRouter(this.queue, false, this.config.generic.enableHttpGet).getRouter());
@@ -175,6 +179,21 @@ export class Webhooks extends EventEmitter {
     //     }
     // }
 
+    // private async onTraccarPayload(hookId: string, payload: unknown) {
+    //     try {
+    //         await this.queue.push({
+    //             "eventName": "traccar-webhook.incoming",
+    //             sender: "Webhooks",
+    //             data: {
+    //                 hookData: payload,
+    //                 hookId: hookId,
+    //             },
+    //         });
+    //     } catch (err) {
+    //         log.error(`Failed to emit payload ${hookId}: ${err}`);
+    //     }
+    // }
+
     private onPayload(req: WebhooksExpressRequest, res: Response) {
         try {
             let eventName: string|null = null;
@@ -214,6 +233,10 @@ export class Webhooks extends EventEmitter {
             //     log.info("bridge_auth hook: got a bridge_auth hook request through the default hooks path");
             //     res.sendStatus(200);
             //     this.onBridgeAuthPayload(req.params.hookId, body);
+            // } else if (req.url.includes('/traccar')) {
+            //     log.info("traccar hook: got a traccar hook request through the default hooks path");
+            //     res.sendStatus(200);
+            //     this.onTraccarPayload(req.params.hookId, body);
             }
             if (eventName) {
                 this.queue.push({

@@ -8,7 +8,7 @@ import { Appservice, Intent, StateEvent } from "matrix-bot-sdk";
 import { ApiError, ErrCode } from "./api";
 import { BridgeConfig, BridgePermissionLevel, GitLabInstance } from "./config/Config";
 import { CommentProcessor } from "./CommentProcessor";
-import { ConnectionDeclaration, ConnectionDeclarations, GenericHookConnection, BridgeAuthConnection, GitHubDiscussionConnection, GitHubDiscussionSpace, GitHubIssueConnection, GitHubProjectConnection, GitHubRepoConnection, GitHubUserSpace, GitLabIssueConnection, GitLabRepoConnection, IConnection, IConnectionState, JiraProjectConnection } from "./Connections";
+import { ConnectionDeclaration, ConnectionDeclarations, GenericHookConnection, BridgeAuthConnection, TraccarConnection, GitHubDiscussionConnection, GitHubDiscussionSpace, GitHubIssueConnection, GitHubProjectConnection, GitHubRepoConnection, GitHubUserSpace, GitLabIssueConnection, GitLabRepoConnection, IConnection, IConnectionState, JiraProjectConnection } from "./Connections";
 import { FigmaFileConnection, FeedConnection } from "./Connections";
 import { GetConnectionTypeResponseItem } from "./provisioning/api";
 import { GitLabClient } from "./Gitlab/Client";
@@ -335,6 +335,10 @@ export class ConnectionManager extends EventEmitter {
 
     public getConnectionsForBridgeAuth(hookId: string): BridgeAuthConnection[] {
         return this.connections.filter((c) => (c instanceof BridgeAuthConnection && c.hookId === hookId)) as BridgeAuthConnection[];
+    }
+    
+    public getConnectionsForTraccar(hookId: string): TraccarConnection[] {
+        return this.connections.filter((c) => (c instanceof TraccarConnection && c.hookId === hookId)) as TraccarConnection[];
     }
 
     public getForFigmaFile(fileKey: string, instanceName: string): FigmaFileConnection[] {

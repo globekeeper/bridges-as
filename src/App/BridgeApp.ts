@@ -1,6 +1,5 @@
 import { Bridge } from "../Bridge";
 import { BridgeConfig, parseRegistrationFile } from "../config/Config";
-import { Webhooks } from "../Webhooks";
 import { MatrixSender } from "../MatrixSender";
 import { UserNotificationWatcher } from "../Notifications/UserNotificationWatcher";
 import { ListenerService } from "../ListenerService";
@@ -24,7 +23,7 @@ export async function start(config: BridgeConfig, registration: IAppserviceRegis
         timestampFormat: config.logging.timestampFormat
     });
     LogService.setLogger(Logger.botSdkLogger);
-
+    
     const {appservice, storage} = getAppservice(config, registration);
 
     if (config.queue.monolithic) {
