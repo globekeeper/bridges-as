@@ -43,7 +43,8 @@ export class BridgeAuthRouter {
                     res.contentType(response.response.contentType);
                 }
                 delete response.response.unauthorized;
-                res.status(200).send(response.response);
+                const responseBody = response.response.body ? response.response.body : response.response;
+                res.status(200).send(responseBody);
             } else if (response.unauthorized) {
                 if (response.response?.contentType) {
                     res.contentType(response.response.contentType);
