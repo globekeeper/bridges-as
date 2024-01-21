@@ -19,6 +19,7 @@ import { GenericWebhooksRouter } from "./generic/Router";
 import { BridgeAuthRouter } from "./bridge_auth/Router";
 import { GithubInstance } from "./github/GithubInstance";
 import QuickLRU from "@alloc/quick-lru";
+import cors from 'cors';
 
 const log = new Logger("Webhooks");
 
@@ -73,6 +74,20 @@ export class Webhooks extends EventEmitter {
             });
             this.ghWebhooks.onAny(e => this.onGitHubPayload(e));
         }
+        const corsOptions: cors.CorsOptions = {
+            origin: '*',
+            credentials: true,
+            methods: ['GET', 'POST', 'DELETE', 'PUT'],
+            allowedHeaders: [
+                'Origin',
+                'X-Requested-With',
+                'Content-Type',
+                'Accept',
+                'Authorization',
+            ],
+            maxAge: 86400, // 24 hours
+        };
+        this.expressRouter.use(cors(corsOptions));
 
         // TODO: Move these
         this.expressRouter.get("/oauth", this.onGitHubGetOauth.bind(this));
