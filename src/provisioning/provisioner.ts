@@ -4,7 +4,7 @@ import { ConnectionManager } from "../ConnectionManager";
 import { Logger } from "matrix-appservice-bridge";
 import { assertUserPermissionsInRoom, GetConnectionsResponseItem, GetConnectionTypeResponseItem } from "./api";
 import { ApiError, ErrCode } from "../api";
-import { Appservice } from "matrix-bot-sdk";
+import { Appservice, MatrixClient } from "matrix-bot-sdk";
 import Metrics from "../Metrics";
 import BotUsersManager from "../Managers/BotUsersManager";
 
@@ -23,9 +23,6 @@ export class Provisioner {
         private readonly botUsersManager: BotUsersManager,
         private readonly as: Appservice,
         additionalRoutes: {route: string, router: Router}[]) {
-        if (!this.config.secret) {
-            throw Error('Missing secret in provisioning config');
-        }
         this.expressRouter.use("/v1", (req, _res, next) => {
             Metrics.provisioningHttpRequest.inc({path: req.path, method: req.method});
             next();
@@ -75,10 +72,30 @@ export class Provisioner {
     }
 
     private checkAuth(req: Request, _res: Response, next: NextFunction) {
+        // Provisioning using the provisioning secret.
         if (req.headers.authorization === `Bearer ${this.config.secret}`) {
             return next();
         }
-        throw new ApiError("Unauthorized", ErrCode.BadToken);
+        // Provisioning using an admin token.
+        let token;
+        try {
+            token = extractToken(req.headers.authorization);
+        } catch (error) {
+            throw new ApiError(error.message, ErrCode.BadToken);
+        }
+        const roomId = req.url.split("/")[1];
+        const cli = new MatrixClient(this.botUsersManager.config.bridge.url, token);
+        cli.getWhoAmI().then((whoami) => {
+            cli.getRoomStateEvent(roomId, "m.room.power_levels", "").then((event) => {
+                if (!event) {
+                    throw new Error(`No power level event found for room: ${roomId}`);
+                }
+                if (event["users"]?.[whoami.user_id] < 90) {
+                    throw new ApiError("Unauthorized", ErrCode.BadToken);
+                }
+                next();
+            });
+        });
     }
 
     private checkRoomId(req: Request<{roomId: string}>, _res: Response, next: NextFunction) {
@@ -206,4 +223,15 @@ export class Provisioner {
             return next(ex);
         }
     }
+}
+
+function extractToken(authHeader: string | undefined): string {
+    if (!authHeader) {
+        throw new Error('No Authorization Header');
+    }
+    const parts = authHeader.split(' ');
+    if (parts.length != 2 || parts[0] != 'Bearer') {
+        throw new Error('Invalid Authorization Header');
+    }
+    return parts[1];
 }
