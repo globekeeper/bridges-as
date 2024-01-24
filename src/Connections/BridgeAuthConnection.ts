@@ -20,13 +20,17 @@ export interface BridgeAuthConnectionState extends IConnectionState {
      */
     hookId?: string;
     /**
+     * This is ONLY used for display purposes, but the account data value is used to prevent misuse.
+     */
+    generatedAuthUrl?: string;
+    /**
      * The name of the external auth provider given in the provisioning UI.
     */
     name: string;
     /**
      * The URL of the external auth provider given in the provisioning UI.
     */
-    url: string;
+    sourceAuthUrl: string;
 }
 
 export interface BridgeAuthSecrets {
@@ -115,10 +119,13 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
 
     static validateState(state: Record<string, unknown>): BridgeAuthConnectionState {
         let name = state.name as string;
-        let url = state.url as string;
+        let sourceAuthUrl = state.url as string;
+        if (!sourceAuthUrl) {
+            sourceAuthUrl = state.sourceAuthUrl as string;
+        }
         name = name.toLowerCase();
-        url = url.toLowerCase();
-        if (!url) {
+        sourceAuthUrl = sourceAuthUrl.toLowerCase();
+        if (!sourceAuthUrl) {
             throw new ApiError('Missing external auth provider URL', ErrCode.BadValue);
         }
         // 'username can only contain characters a-z, 0-9, or '_ -./=''
@@ -128,7 +135,7 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         if (!matrixUsernameAllowedCharacters.test(name)) {
             throw new ApiError("'name' must consist on a-z, 0-9, or '_ -./=", ErrCode.BadValue);
         }
-        return { url, name };
+        return { sourceAuthUrl, name };
     }
 
     static async createConnectionForState(roomId: string, event: StateEvent<Record<string, unknown>>, {as, intent, config, messageClient}: InstantiateConnectionOpts) {
@@ -220,7 +227,7 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
      * sending a response back.
      */
     public get externalAuthProviderURL(): string {
-        return this.state.url ?? "";
+        return this.state.sourceAuthUrl ?? "";
     }
 
     public get priority(): number {
@@ -292,8 +299,7 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
                     'Accept': '*/*',
                 },
             };
-            // TODO: Add ability to configure the login request payload + method.
-            await axios.post(this.state.url, qs.stringify({
+            await axios.post(this.state.sourceAuthUrl, qs.stringify({
                 username: email,
                 password,
             }), reqConfig);
@@ -367,8 +373,9 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
             ...BridgeAuthConnection.getProvisionerDetails(this.intent.userId),
             id: this.connectionId,
             config: {
-                url: this.state.url,
                 name: this.state.name,
+                sourceAuthUrl: this.state.sourceAuthUrl,
+                generatedAuthUrl: new URL(this.hookId, this.config.parsedUrlPrefix).toString(),
             },
             ...(showSecrets ? { secrets: {
                 url: new URL(this.hookId, this.config.parsedUrlPrefix),
