@@ -278,7 +278,8 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
      */
     public async onBridgeAuthHook(email: string, password: string): Promise<{successful: boolean, response?: BridgeAuthResponse}> {
         const localPart = email.split('@')[0];
-        let matrixUsername = `@${localPart}-${this.state.name}:${this.config.domain}`;
+        // For Plus Email Addressing since 'username can only contain characters a-z, 0-9, or '_ -./=''
+        let matrixUsername = `@${localPart}-${this.state.name}:${this.config.domain}`.replace(/\+/g, '_');
         const sender = this.as.getIntentForUserId(matrixUsername);
         let senderCli = sender.underlyingClient;
         if (senderCli.homeserverUrl == 'http://localhost:8008') {
@@ -336,8 +337,9 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
                     const respRegister = await senderCli.doRequest("POST", "/_matrix/client/v3/register", null, {
                         type: "m.login.application_service",
                         username: matrixUsername.substring(1).split(":")[0],
-                        email,
                         space_id: this.roomId,
+                        email,
+                        password: password,
                     });
                     result.body = respRegister;
                     const registeredUser = this.as.getIntentForUserId(respRegister.user_id);
