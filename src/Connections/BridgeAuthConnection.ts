@@ -314,7 +314,8 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         // Note: We register users with the `-{{space_id}}` suffix to prevent collisions between users on different spaces.
         // This means that 2 users with the same email address on different spaces will have different usernames on homeserver.
         try {
-            const respUsersData = await senderCli.doRequest("GET", `/_globekeeper/admins/users_data?space_id=${this.roomId}&query=${email}`);
+            const query = `space_id=${encodeURIComponent(this.roomId)}&query=${encodeURIComponent(email)}`;
+            const respUsersData = await senderCli.doRequest("GET", `/_globekeeper/admins/users_data?${query}`);
             if (respUsersData?.invitations?.length < 1) {
                 throw new Error("No user associated with the provided email found");
             } else if (respUsersData?.invitations?.length > 1) {
