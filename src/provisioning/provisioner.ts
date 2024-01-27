@@ -7,6 +7,7 @@ import { ApiError, ErrCode } from "../api";
 import { Appservice, MatrixClient } from "matrix-bot-sdk";
 import Metrics from "../Metrics";
 import BotUsersManager from "../Managers/BotUsersManager";
+import cors from 'cors';
 
 const log = new Logger("Provisioner");
 
@@ -27,6 +28,20 @@ export class Provisioner {
             Metrics.provisioningHttpRequest.inc({path: req.path, method: req.method});
             next();
         });
+        const corsOptions: cors.CorsOptions = {
+            origin: '*',
+            credentials: true,
+            methods: ['GET', 'POST', 'DELETE', 'PUT'],
+            allowedHeaders: [
+                'Origin',
+                'X-Requested-With',
+                'Content-Type',
+                'Accept',
+                'Authorization',
+            ],
+            maxAge: 86400, // 24 hours
+        };
+        this.expressRouter.use(cors(corsOptions));
         this.expressRouter.get("/v1/health", this.getHealth);
         this.expressRouter.use("/v1", this.checkAuth.bind(this));
         this.expressRouter.use(express.json());
