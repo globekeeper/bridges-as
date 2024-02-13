@@ -368,6 +368,20 @@ export class BridgeConfigAuth {
     }
 }
 
+export interface BridgeMqttConfigYAML {
+    enabled: boolean;
+    mqttAsAddress: string;
+}
+
+export class BridgeConfigMqtt {
+    public readonly enabled: boolean;
+    public readonly mqttasAddress: string;
+    constructor(yaml: BridgeMqttConfigYAML) {
+        this.enabled = yaml.enabled || false;
+        this.mqttasAddress = yaml.mqttAsAddress;
+    }
+}
+
 interface BridgeWidgetConfigYAML {
     publicUrl: string;
     /**
@@ -497,6 +511,7 @@ export interface BridgeConfigRoot {
     experimentalEncryption?: BridgeConfigEncryption;
     figma?: BridgeConfigFigma;
     feeds?: BridgeConfigFeedsYAML;
+    mqtt?: BridgeMqttConfigYAML;
     bridgeAuth?: BridgeAuthConfigYAML;
     generic?: BridgeGenericWebhooksConfigYAML;
     github?: BridgeConfigGitHubYAML;
@@ -540,6 +555,8 @@ export class BridgeConfig {
     public readonly jira?: BridgeConfigJira;
     @configKey("Support for external auth events", true)
     public readonly bridgeAuth?: BridgeConfigAuth;
+    @configKey("Support for MQTT integration", true)
+    public readonly mqtt?: BridgeConfigMqtt;
     @configKey(`Support for generic webhook events.
 'allowJsTransformationFunctions' will allow users to write short transformation snippets in code, and thus is unsafe in untrusted environments
 `, true)
@@ -585,6 +602,7 @@ export class BridgeConfig {
         this.gitlab = configData.gitlab && new BridgeConfigGitLab(configData.gitlab);
         this.figma = configData.figma;
         this.jira = configData.jira && new BridgeConfigJira(configData.jira);
+        this.mqtt = configData.mqtt && new BridgeConfigMqtt(configData.mqtt);
         this.bridgeAuth = configData.bridgeAuth && new BridgeConfigAuth(configData.bridgeAuth, configData.bridge.domain);
         this.generic = configData.generic && new BridgeConfigGenericWebhooks(configData.generic);
         this.feeds = configData.feeds && new BridgeConfigFeeds(configData.feeds);

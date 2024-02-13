@@ -27,6 +27,7 @@ import { UserTokenStore } from "./UserTokenStore";
 import * as GitHubWebhookTypes from "@octokit/webhooks-types";
 import { Logger } from "matrix-appservice-bridge";
 import { Provisioner } from "./provisioning/provisioner";
+import { MqttConnectionsManager } from "./mqttConnectionManager/mqttConnectionManager";
 import { JiraProvisionerRouter } from "./jira/Router";
 import { GitHubProvisionerRouter } from "./github/Router";
 import { OAuthRequest } from "./WebhookTypes";
@@ -41,7 +42,9 @@ import { BridgeAuthEvent, BridgeAuthEventResult } from "./bridge_auth/types";
 import { SetupWidget } from "./Widgets/SetupWidget";
 import { FeedEntry, FeedError, FeedReader, FeedSuccess } from "./feeds/FeedReader";
 import PQueue from "p-queue";
+import { Pool } from "pg";
 import * as Sentry from '@sentry/node';
+import "dotenv/config";
 
 const log = new Logger("Bridge");
 
@@ -58,6 +61,8 @@ export class Bridge {
     private feedReader?: FeedReader;
     private provisioningApi?: Provisioner;
     private replyProcessor = new RichRepliesPreprocessor(true);
+    private dbCli = new Pool;
+    private mqttConnectionsApi?: MqttConnectionsManager;
 
     private ready = false;
 
@@ -74,6 +79,7 @@ export class Bridge {
         this.notifProcessor = new NotificationProcessor(this.storage, this.messageClient);
         this.tokenStore = new UserTokenStore(this.config.passFile || "./passkey.pem", this.as.botIntent, this.config);
         this.tokenStore.on("onNewToken", this.onTokenUpdated.bind(this));
+        this.dbCli = new Pool({ connectionString: process.env.DATABASE_URL });
 
         // Legacy routes, to be removed.
         this.as.expressAppInstance.get("/live", (_, res) => res.send({ok: true}));
@@ -164,6 +170,14 @@ export class Bridge {
                 this.as,
                 routers,
             );
+            if (this.config.mqtt?.enabled) {
+                await this.dbCli.connect();
+                this.mqttConnectionsApi = new MqttConnectionsManager(
+                    this.dbCli,
+                    this.config.mqtt,
+                    this.botUsersManager,
+                );
+            }
         }
 
         this.as.on("query.room", async (roomAlias, cb) => {
@@ -830,6 +844,9 @@ export class Bridge {
         }
         if (this.provisioningApi) {
             this.listener.bindResource('provisioning', this.provisioningApi.expressRouter);
+        }
+        if (this.mqttConnectionsApi) {
+            this.listener.bindResource('mqttConnectionManagement', this.mqttConnectionsApi.expressRouter);
         }
         if (this.config.metrics?.enabled) {
             this.listener.bindResource('metrics', Metrics.expressRouter);

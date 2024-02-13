@@ -91,7 +91,7 @@ export class Provisioner {
         if (req.headers.authorization === `Bearer ${this.config.secret}`) {
             return next();
         }
-        // Provisioning using an admin token.
+        // Provisioning using an admin+ token.
         let token;
         try {
             token = extractToken(req.headers.authorization);
