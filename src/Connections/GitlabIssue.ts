@@ -36,8 +36,8 @@ const log = new Logger("GitLabIssueConnection");
  */
 @Connection
 export class GitLabIssueConnection extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.gitlab.issue";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.gitlab.issue";
+    static readonly CanonicalEventType = "gk.bridgeas.gitlab.issue";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.gitlab.issue";
     static readonly EventTypes = [
         GitLabIssueConnection.CanonicalEventType,
         GitLabIssueConnection.LegacyCanonicalEventType,

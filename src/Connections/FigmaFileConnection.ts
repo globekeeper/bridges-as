@@ -21,8 +21,8 @@ const THREAD_RELATION_TYPE = "m.thread";
 const md = markdownit();
 @Connection
 export class FigmaFileConnection extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.figma.file";
-    static readonly LegacyEventType = "uk.half-shot.matrix-figma.file"; // Magically import from matrix-figma
+    static readonly CanonicalEventType = "gk.bridgeas.figma.file";
+    static readonly LegacyEventType = "gk.bridgeas.matrix-figma.file"; // Magically import from matrix-figma
 
     static readonly EventTypes = [
         FigmaFileConnection.CanonicalEventType,
@@ -140,7 +140,7 @@ export class FigmaFileConnection extends BaseConnection implements IConnection {
                 formatted_body: `<strong>${name}</strong>: ${comment}`,
                 format: "org.matrix.custom.html",
                 msgtype: "m.notice",
-                "uk.half-shot.matrix-hookshot.figma.comment_id": payload.comment_id,
+                "gk.bridgeas.figma.comment_id": payload.comment_id,
             }
         } else {
             // Root event.
@@ -150,10 +150,10 @@ export class FigmaFileConnection extends BaseConnection implements IConnection {
                 body: body,
                 formatted_body: md.renderInline(body),
                 format: "org.matrix.custom.html",
-                "uk.half-shot.matrix-hookshot.figma.comment_id": payload.comment_id,
+                "gk.bridgeas.figma.comment_id": payload.comment_id,
             };
         }
-        content["uk.half-shot.matrix-hookshot.figma.comment_id"] = payload.comment_id;
+        content["gk.bridgeas.figma.comment_id"] = payload.comment_id;
         const eventId = await intent.sendEvent(this.roomId, content);
         log.info(`New figma comment ${payload.comment_id} -> ${this.roomId}/${eventId}`)
         await this.storage.setFigmaCommentEventId(this.roomId, payload.comment_id, eventId);

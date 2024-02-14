@@ -56,7 +56,7 @@ describe("FormatUtilTest", () => {
     it("should correctly generate a partial body for a Github repo", () => {
         expect(FormatUtil.getPartialBodyForGithubRepo(SIMPLE_REPO)).to.deep.equal({
             "external_url": "https://github.com/evilcorp/lab",
-            "uk.half-shot.matrix-hookshot.github.repo": {
+            "gk.bridgeas.github.repo": {
                 id: 123,
                 name: "evilcorp/lab",
                 url: "https://github.com/evilcorp/lab",
@@ -66,13 +66,13 @@ describe("FormatUtilTest", () => {
     it("should correctly generate a partial body for a Github issue", () => {
         expect(FormatUtil.getPartialBodyForGithubIssue(SIMPLE_REPO, SIMPLE_ISSUE)).to.deep.equal({
             "external_url": "https://github.com/evilcorp/lab/issues/123",
-            "uk.half-shot.matrix-hookshot.github.issue": {
+            "gk.bridgeas.github.issue": {
                 id: 123,
                 number: 123,
                 title: "A simple title",
                 url: "https://github.com/evilcorp/lab/issues/123",
             },
-            "uk.half-shot.matrix-hookshot.github.repo": {
+            "gk.bridgeas.github.repo": {
                 id: 123,
                 name: "evilcorp/lab",
                 url: "https://github.com/evilcorp/lab",
@@ -115,12 +115,12 @@ describe("FormatUtilTest", () => {
     it("should correctly format a JIRA issue", () => {
         expect(FormatUtil.getPartialBodyForJiraIssue(SIMPLE_JIRA_ISSUE)).to.deep.equal({
                 "external_url": "http://example-api.url.com/browse/TEST-001",
-                "uk.half-shot.matrix-hookshot.jira.issue": {
+                "gk.bridgeas.jira.issue": {
                     "api_url": "http://example-api.url.com/issue-url",
                     "id": "test-issue",
                     "key": "TEST-001",
                 },
-                "uk.half-shot.matrix-hookshot.jira.project": {
+                "gk.bridgeas.jira.project": {
                     "api_url": "http://example-api.url.com/project-url",
                     "id": "test-project",
                     "key": "TEST",

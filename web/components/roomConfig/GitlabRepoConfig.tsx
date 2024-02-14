@@ -9,7 +9,7 @@ import { useState, useCallback, useMemo } from "preact/hooks";
 import { DropItem } from "../elements/DropdownSearch";
 import { ConnectionSearch } from "../elements/ConnectionSearch";
 
-const EventType = "uk.half-shot.matrix-hookshot.gitlab.repository";
+const EventType = "gk.bridgeas.gitlab.repository";
 const ConnectionConfiguration: FunctionComponent<ConnectionConfigurationProps<never, GitLabRepoResponseItem, GitLabRepoConnectionState>> = ({api, existingConnection, onSave, onRemove, isUpdating }) => {
     const [enabledHooks, setEnabledHooks] = useState<string[]>(existingConnection?.config.enableHooks || []);
 

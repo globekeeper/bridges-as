@@ -18,8 +18,8 @@ const log = new Logger("GitHubProjectConnection");
  */
 @Connection
 export class GitHubProjectConnection extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.github.project";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.project";
+    static readonly CanonicalEventType = "gk.bridgeas.github.project";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.project";
     static readonly ServiceCategory = "github";
     static readonly EventTypes = [
         GitHubProjectConnection.CanonicalEventType,

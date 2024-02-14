@@ -32,8 +32,8 @@ const md = new markdown();
  */
 @Connection
 export class GitHubDiscussionConnection extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.github.discussion";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.discussion";
+    static readonly CanonicalEventType = "gk.bridgeas.github.discussion";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.discussion";
 
     static readonly EventTypes = [
         GitHubDiscussionConnection.CanonicalEventType,
@@ -172,7 +172,7 @@ export class GitHubDiscussionConnection extends BaseConnection implements IConne
             formatted_body: md.render(data.comment.body),
             msgtype: 'm.text',
             external_url: data.comment.html_url,
-            'uk.half-shot.matrix-hookshot.github.discussion.comment_id': data.comment.id,
+            'gk.bridgeas.github.discussion.comment_id': data.comment.id,
         }, 'm.room.message', intent.userId);
     }
 

@@ -166,8 +166,8 @@ export interface GitLabTargetFilter {
  */
 @Connection
 export class GitLabRepoConnection extends CommandConnection<GitLabRepoConnectionState, ConnectionStateValidated> implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.gitlab.repository";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.gitlab.repository";
+    static readonly CanonicalEventType = "gk.bridgeas.gitlab.repository";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.gitlab.repository";
 
     static readonly EventTypes = [
         GitLabRepoConnection.CanonicalEventType,

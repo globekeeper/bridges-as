@@ -93,11 +93,11 @@ decoded.
 In previous versions of hookshot, it would also handle the `GET` HTTP method. This was disabled due to concerns that it was too easy for the webhook to be
 inadvertently triggered by URL preview features in clients and servers. If you still need this functionality, you can enable it in the config.
 
-Hookshot will insert the full content of the body into a key under the Matrix event called `uk.half-shot.hookshot.webhook_data`, which may be useful if you have
+Hookshot will insert the full content of the body into a key under the Matrix event called `gk.bridgeas.hookshot.webhook_data`, which may be useful if you have
 other integrations that would like to make use of the raw request body.
 
 <section class="notice">
-Matrix does NOT support floating point values in JSON, so the <code>uk.half-shot.hookshot.webhook_data</code> field will automatically convert any float values
+Matrix does NOT support floating point values in JSON, so the <code>gk.bridgeas.hookshot.webhook_data</code> field will automatically convert any float values
 to a string representation of that value. This change is <strong>not applied</strong> to the JavaScript transformation <code>data</code>
 variable, so it will contain proper float values.
 </section>
@@ -124,7 +124,7 @@ you a very powerful ability to generate messages based on whatever input is comi
 The input is parsed and executed within a separate JavaScript Virtual Machine context, and is limited to an execution time of 2 seconds.
 With that said, the feature is disabled by default and `allowJsTransformationFunctions` must be enabled in the config.
 
-The code snippets can be edited by editing the Matrix state event corresponding to this connection (with a state type of `uk.half-shot.matrix-hookshot.generic.hook`).
+The code snippets can be edited by editing the Matrix state event corresponding to this connection (with a state type of `gk.bridgeas.generic.hook`).
 Because this is a fairly advanced feature, this documentation won't go into how to edit state events from your client.
 Please seek out documentation from your client on how to achieve this.
 

@@ -96,7 +96,7 @@ export class FeedReader {
     private feedsFailingHttp = new Set();
     private feedsFailingParsing = new Set();
 
-    static readonly seenEntriesEventType = "uk.half-shot.matrix-hookshot.feed.reader.seenEntries";
+    static readonly seenEntriesEventType = "gk.bridgeas.feed.reader.seenEntries";
 
     private shouldRun = true;
     private readonly timeouts: (NodeJS.Timeout|undefined)[];

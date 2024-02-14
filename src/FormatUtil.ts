@@ -71,7 +71,7 @@ export class FormatUtil {
         return {
             ...FormatUtil.getPartialBodyForGithubRepo(repo),
             "external_url": issue.html_url,
-            "uk.half-shot.matrix-hookshot.github.pull_request": {
+            "gk.bridgeas.github.pull_request": {
                 id: issue.id,
                 number: issue.number,
                 title: issue.title,
@@ -87,7 +87,7 @@ export class FormatUtil {
         return {
             ...(issue && repo ? FormatUtil.getPartialBodyForGithubIssue(repo, issue) : undefined),
             "external_url": comment.html_url,
-            "uk.half-shot.matrix-hookshot.github.comment": {
+            "gk.bridgeas.github.comment": {
                 id: comment.id,
             },
         };

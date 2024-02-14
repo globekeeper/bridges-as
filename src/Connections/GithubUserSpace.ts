@@ -20,8 +20,8 @@ export interface GitHubUserSpaceConnectionState {
  */
 @Connection
 export class GitHubUserSpace extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.github.user.space";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.user.space";
+    static readonly CanonicalEventType = "gk.bridgeas.github.user.space";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.user.space";
 
     static readonly EventTypes = [
         GitHubUserSpace.CanonicalEventType, // Legacy event, with an awful name.

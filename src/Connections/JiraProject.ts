@@ -96,8 +96,8 @@ const md = new markdownit();
  */
 @Connection
 export class JiraProjectConnection extends CommandConnection<JiraProjectConnectionState> implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.jira.project";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.jira.project";
+    static readonly CanonicalEventType = "gk.bridgeas.jira.project";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.jira.project";
 
     static readonly EventTypes = [
         JiraProjectConnection.CanonicalEventType,
