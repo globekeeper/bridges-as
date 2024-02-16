@@ -27,7 +27,6 @@ import { UserTokenStore } from "./UserTokenStore";
 import * as GitHubWebhookTypes from "@octokit/webhooks-types";
 import { Logger } from "matrix-appservice-bridge";
 import { Provisioner } from "./provisioning/provisioner";
-import { MqttConnectionsManager } from "./mqttConnectionManager/mqttConnectionManager";
 import { JiraProvisionerRouter } from "./jira/Router";
 import { GitHubProvisionerRouter } from "./github/Router";
 import { OAuthRequest } from "./WebhookTypes";
@@ -42,9 +41,9 @@ import { BridgeAuthEvent, BridgeAuthEventResult } from "./bridge_auth/types";
 import { SetupWidget } from "./Widgets/SetupWidget";
 import { FeedEntry, FeedError, FeedReader, FeedSuccess } from "./feeds/FeedReader";
 import PQueue from "p-queue";
-import { Pool } from "pg";
 import * as Sentry from '@sentry/node';
-import "dotenv/config";
+import { MqttConnection } from "./Connections/MqttConnection";
+import { MqttProvisionerRouter } from "./mqtt/Router";
 
 const log = new Logger("Bridge");
 
@@ -61,8 +60,6 @@ export class Bridge {
     private feedReader?: FeedReader;
     private provisioningApi?: Provisioner;
     private replyProcessor = new RichRepliesPreprocessor(true);
-    private dbCli = new Pool;
-    private mqttConnectionsApi?: MqttConnectionsManager;
 
     private ready = false;
 
@@ -79,7 +76,6 @@ export class Bridge {
         this.notifProcessor = new NotificationProcessor(this.storage, this.messageClient);
         this.tokenStore = new UserTokenStore(this.config.passFile || "./passkey.pem", this.as.botIntent, this.config);
         this.tokenStore.on("onNewToken", this.onTokenUpdated.bind(this));
-        this.dbCli = new Pool({ connectionString: process.env.DATABASE_URL });
 
         // Legacy routes, to be removed.
         this.as.expressAppInstance.get("/live", (_, res) => res.send({ok: true}));
@@ -145,14 +141,14 @@ export class Bridge {
             const routers = [];
             if (this.config.jira) {
                 routers.push({
-                    route: "/v1/jira",
+                    route: "/bridge/jira",
                     router: new JiraProvisionerRouter(this.config.jira, this.tokenStore).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(JiraProjectConnection);
             }
             if (this.config.github && this.github) {
                 routers.push({
-                    route: "/v1/github",
+                    route: "/bridge/github",
                     router: new GitHubProvisionerRouter(this.config.github, this.tokenStore, this.github).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(GitHubRepoConnection);
@@ -163,6 +159,14 @@ export class Bridge {
             if (this.config.bridgeAuth) {
                 this.connectionManager.registerProvisioningConnection(BridgeAuthConnection);
             }
+            if (this.config.mqtt?.enabled) {
+                // Register the internal backend route for get all live connections
+                routers.push({
+                    route: "/bridge/mqtt",
+                    router: new MqttProvisionerRouter(this.config.provisioning).getRouter(),
+                });
+                this.connectionManager.registerProvisioningConnection(MqttConnection);
+            }
             this.provisioningApi = new Provisioner(
                 this.config.provisioning,
                 this.connectionManager,
@@ -170,14 +174,6 @@ export class Bridge {
                 this.as,
                 routers,
             );
-            if (this.config.mqtt?.enabled) {
-                await this.dbCli.connect();
-                this.mqttConnectionsApi = new MqttConnectionsManager(
-                    this.dbCli,
-                    this.config.mqtt,
-                    this.botUsersManager,
-                );
-            }
         }
 
         this.as.on("query.room", async (roomAlias, cb) => {
@@ -845,9 +841,6 @@ export class Bridge {
         if (this.provisioningApi) {
             this.listener.bindResource('provisioning', this.provisioningApi.expressRouter);
         }
-        if (this.mqttConnectionsApi) {
-            this.listener.bindResource('mqttConnectionManagement', this.mqttConnectionsApi.expressRouter);
-        }
         if (this.config.metrics?.enabled) {
             this.listener.bindResource('metrics', Metrics.expressRouter);
         }
@@ -1084,8 +1077,8 @@ export class Bridge {
             // This might be a reply to a notification
             try {
                 const ev = processedReplyMetadata.realEvent;
-                const splitParts: string[] = ev.content["uk.half-shot.matrix-hookshot.github.repo"]?.name.split("/");
-                const issueNumber = ev.content["uk.half-shot.matrix-hookshot.github.issue"]?.number;
+                const splitParts: string[] = ev.content["gk.bridgeas.github.repo"]?.name.split("/");
+                const issueNumber = ev.content["gk.bridgeas.github.issue"]?.number;
                 if (splitParts && issueNumber) {
                     log.info(`Handling reply for ${splitParts}${issueNumber}`);
                     const connections = this.connectionManager.getConnectionsForGithubIssue(splitParts[0], splitParts[1], issueNumber);

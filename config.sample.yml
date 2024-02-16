@@ -32,10 +32,6 @@ listeners:
     resources:
       - metrics
       - provisioning
-  - port: 9002
-    bindAddress: 0.0.0.0
-    resources:
-      - mqttConnectionManagement
 
 #github:
 #  # (Optional) Configure this to enable GitHub support

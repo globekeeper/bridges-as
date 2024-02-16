@@ -24,7 +24,7 @@ export class Provisioner {
         private readonly botUsersManager: BotUsersManager,
         private readonly as: Appservice,
         additionalRoutes: {route: string, router: Router}[]) {
-        this.expressRouter.use("/v1", (req, _res, next) => {
+        this.expressRouter.use("/bridge", (req, _res, next) => {
             Metrics.provisioningHttpRequest.inc({path: req.path, method: req.method});
             next();
         });
@@ -42,44 +42,44 @@ export class Provisioner {
             maxAge: 86400, // 24 hours
         };
         this.expressRouter.use(cors(corsOptions));
-        this.expressRouter.get("/v1/health", this.getHealth);
-        this.expressRouter.use("/v1", this.checkAuth.bind(this));
+        this.expressRouter.get("/bridge/health", this.getHealth);
+        this.expressRouter.use("/bridge", this.checkAuth.bind(this));
         this.expressRouter.use(express.json());
-        // Room Routes
         this.expressRouter.get(
-            "/v1/connectiontypes",
+            "/bridge/connectiontypes",
             this.getConnectionTypes.bind(this),
         );
-        this.expressRouter.use("/v1", this.checkUserId.bind(this));
+        this.expressRouter.use("/bridge", this.checkUserId.bind(this));
         additionalRoutes.forEach(route => {
             this.expressRouter.use(route.route, route.router);
         });
+        // Room Routes
         this.expressRouter.get<{roomId: string}, unknown, unknown, {userId: string}>(
-            "/v1/:roomId/connections",
+            "/bridge/:roomId/connections",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("read", ...args),
             this.getConnections.bind(this),
         );
         this.expressRouter.get<{roomId: string, connectionId: string}, unknown, unknown, {userId: string}>(
-            "/v1/:roomId/connections/:connectionId",
+            "/bridge/:roomId/connections/:connectionId",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("read", ...args),
             this.getConnection.bind(this),
         );
         this.expressRouter.put<{roomId: string, type: string}, unknown, Record<string, unknown>, {userId: string}>(
-            "/v1/:roomId/connections/:type",
+            "/bridge/:roomId/connections/:type",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("write", ...args),
             this.putConnection.bind(this),
         );
         this.expressRouter.patch<{roomId: string, connectionId: string}, unknown, Record<string, unknown>, {userId: string}>(
-            "/v1/:roomId/connections/:connectionId",
+            "/bridge/:roomId/connections/:connectionId",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("write", ...args),
             this.patchConnection.bind(this),
         );
         this.expressRouter.delete<{roomId: string, connectionId: string}, unknown, unknown, {userId: string}>(
-            "/v1/:roomId/connections/:connectionId",
+            "/bridge/:roomId/connections/:connectionId",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("write", ...args),
             this.deleteConnection.bind(this),
@@ -88,7 +88,9 @@ export class Provisioner {
 
     private checkAuth(req: Request, _res: Response, next: NextFunction) {
         // Provisioning using the provisioning secret.
+        req.local = req.local || {};
         if (req.headers.authorization === `Bearer ${this.config.secret}`) {
+            req.local.userId = this.as.botUserId;
             return next();
         }
         // Provisioning using an admin+ token.
@@ -98,9 +100,14 @@ export class Provisioner {
         } catch (error) {
             throw new ApiError(error.message, ErrCode.BadToken);
         }
-        const roomId = req.url.split("/")[1];
         const cli = new MatrixClient(this.botUsersManager.config.bridge.url, token);
         cli.getWhoAmI().then((whoami) => {
+            //! GK replacement instead of keep sending the userId query parameter.
+            req.local.userId = whoami.user_id;
+            if (!req.params.roomId) {
+                return next();
+            }
+            const roomId = req.params.roomId;
             cli.getRoomStateEvent(roomId, "m.room.power_levels", "").then((event) => {
                 if (!event) {
                     throw new Error(`No power level event found for room: ${roomId}`);
@@ -123,14 +130,14 @@ export class Provisioner {
     }
 
     private checkUserId(req: Request, _res: Response, next: NextFunction) {
-        if (typeof req.query.userId !== "string" || !USER_ID_VALIDATOR.exec(req.query.userId)) {
+        if (typeof req.local.userId !== "string" || !USER_ID_VALIDATOR.exec(req.local.userId)) {
             throw new ApiError("Invalid userId", ErrCode.BadValue);
         }
         next();
     }
 
     private async checkUserPermission(requiredPermission: "read"|"write", req: Request<{roomId: string}, unknown, unknown, {userId: string}>, res: Response, next: NextFunction) {
-        const userId = req.query.userId;
+        const userId = req.local.userId as string;
         const roomId = req.params.roomId;
 
         const botUser = this.botUsersManager.getBotUserInRoom(roomId);
@@ -173,7 +180,7 @@ export class Provisioner {
 
     private async putConnection(req: Request<{roomId: string, type: string}, unknown, Record<string, unknown>, {userId: string}>, res: Response<GetConnectionsResponseItem>, next: NextFunction) {
         const roomId = req.params.roomId;
-        const userId = req.query.userId;
+        const userId = req.local.userId as string;
         const eventType = req.params.type;
         const connectionType = this.connMan.getConnectionTypeForEventType(eventType);
         if (!connectionType) {
@@ -218,7 +225,7 @@ export class Provisioner {
                 return next(new ApiError("Connection type does not support updates.", ErrCode.UnsupportedOperation));
             }
             this.connMan.validateCommandPrefix(req.params.roomId, req.body, connection);
-            await connection.provisionerUpdateConfig(req.query.userId, req.body);
+            await connection.provisionerUpdateConfig(req.local.userId as string, req.body);
             res.send(connection.getProvisionerDetails(true));
         } catch (ex) {
             next(ex);

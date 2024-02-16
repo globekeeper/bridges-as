@@ -107,7 +107,8 @@ export async function selectConnection(client: Client, args: SelectConnectionArg
 export const insertConnectionQuery = `-- name: InsertConnection :one
 INSERT INTO connections (broker, client_id, username, password, space_ids)
 VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (broker, username) DO NOTHING
+ON CONFLICT (broker, username) DO UPDATE
+SET (client_id, password, space_ids) = ($2, $4, $5)
 RETURNING broker, username`;
 
 export interface InsertConnectionArgs {

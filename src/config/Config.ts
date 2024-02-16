@@ -370,7 +370,7 @@ export class BridgeConfigAuth {
 
 export interface BridgeMqttConfigYAML {
     enabled: boolean;
-    mqttAsAddress: string;
+    mqttasAddress: string;
 }
 
 export class BridgeConfigMqtt {
@@ -378,7 +378,7 @@ export class BridgeConfigMqtt {
     public readonly mqttasAddress: string;
     constructor(yaml: BridgeMqttConfigYAML) {
         this.enabled = yaml.enabled || false;
-        this.mqttasAddress = yaml.mqttAsAddress;
+        this.mqttasAddress = yaml.mqttasAddress;
     }
 }
 
@@ -782,6 +782,9 @@ remove "useLegacySledStore" from your configuration file, and restart Hookshot.
         }
         if (this.figma) {
             services.push("figma");
+        }
+        if (this.mqtt && this.mqtt.enabled) {
+            services.push("mqtt");
         }
         if (this.bridgeAuth && this.bridgeAuth.enabled) {
             services.push("bridgeAuth");

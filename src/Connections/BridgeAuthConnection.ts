@@ -204,7 +204,6 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         BridgeAuthConnection.LegacyCanonicalEventType,
     ];
 
-    private transformationFunction?: string;
     private cachedDisplayname?: string;
     /**
      * @param state Should be a pre-validated state object returned by {@link validateState}

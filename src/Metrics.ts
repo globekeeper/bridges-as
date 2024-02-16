@@ -9,7 +9,6 @@ export class Metrics {
 
     public readonly webhooksHttpRequest;
     public readonly provisioningHttpRequest;
-    public readonly mqttHttpRequest;
 
     public readonly messageQueuePushes;
     public readonly connectionsEventFailed;
@@ -38,7 +37,6 @@ export class Metrics {
 
         this.webhooksHttpRequest = new Counter({ name: "hookshot_webhooks_http_request", help: "Number of requests made to the hookshot webhooks handler", labelNames: ["path", "method"], registers: [this.registry]});
         this.provisioningHttpRequest = new Counter({ name: "hookshot_provisioning_http_request", help: "Number of requests made to the hookshot provisioner handler", labelNames: ["path", "method"], registers: [this.registry]});
-        this.mqttHttpRequest = new Counter({ name: "hookshot_mqtt_http_request", help: "Number of requests made to the hookshot mqtt connection manager", labelNames: ["path", "method"], registers: [this.registry]});
 
         this.messageQueuePushes = new Counter({ name: "hookshot_queue_event_pushes", help: "Number of events pushed through the queue", labelNames: ["event"], registers: [this.registry]});
         this.connectionsEventFailed = new Counter({ name: "hookshot_connection_event_failed", help: "Number of events that failed to process", labelNames: ["event", "connectionId"], registers: [this.registry]});
