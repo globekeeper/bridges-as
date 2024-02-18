@@ -18,6 +18,7 @@ ENV CARGO_NET_GIT_FETCH_WITH_CLI=$CARGO_NET_GIT_FETCH_WITH_CLI
 WORKDIR /src
 
 COPY package.json yarn.lock ./
+COPY src/db ./db
 RUN yarn config set yarn-offline-mirror /cache/yarn
 RUN yarn --ignore-scripts --pure-lockfile --network-timeout 600000
 
@@ -31,7 +32,7 @@ RUN yarn build
 # Stage 1: The actual container
 FROM node:20-slim
 
-WORKDIR /bin/matrix-hookshot
+WORKDIR /bin/bridgeas
 
 RUN apt-get update && apt-get install -y openssl ca-certificates
 
@@ -42,6 +43,7 @@ RUN yarn config set yarn-offline-mirror /cache/yarn
 RUN yarn --network-timeout 600000 --production --pure-lockfile && yarn cache clean
 
 COPY --from=builder /src/lib ./
+COPY --from=builder /src/db ./db
 COPY --from=builder /src/public ./public
 COPY --from=builder /src/assets ./assets
 
@@ -49,4 +51,4 @@ VOLUME /data
 EXPOSE 9993
 EXPOSE 7775
 
-CMD ["node", "/bin/matrix-hookshot/App/BridgeApp.js", "/data/config.yml", "/data/registration.yml"]
+CMD ["node", "/bin/bridgeas/App/BridgeApp.js", "/data/config.yml", "/data/registration.yml"]

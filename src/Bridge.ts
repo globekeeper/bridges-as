@@ -141,14 +141,14 @@ export class Bridge {
             const routers = [];
             if (this.config.jira) {
                 routers.push({
-                    route: "/bridge/jira",
+                    route: "/provisioner/jira",
                     router: new JiraProvisionerRouter(this.config.jira, this.tokenStore).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(JiraProjectConnection);
             }
             if (this.config.github && this.github) {
                 routers.push({
-                    route: "/bridge/github",
+                    route: "/provisioner/github",
                     router: new GitHubProvisionerRouter(this.config.github, this.tokenStore, this.github).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(GitHubRepoConnection);
@@ -162,7 +162,7 @@ export class Bridge {
             if (this.config.mqtt?.enabled) {
                 // Register the internal backend route for get all live connections
                 routers.push({
-                    route: "/bridge/mqtt",
+                    route: "/provisioner/mqtt",
                     router: new MqttProvisionerRouter(this.config.provisioning).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(MqttConnection);

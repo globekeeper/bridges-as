@@ -46,7 +46,7 @@ export const DefaultConfigRoot: BridgeConfigRoot = {
         },
     },
     bot: {
-        displayname: "Hookshot Bot",
+        displayname: "Bridge Bot",
         avatar: "mxc://half-shot.uk/2876e89ccade4cb615e210c458e2a7a6883fe17d"
     },
     serviceBots: [

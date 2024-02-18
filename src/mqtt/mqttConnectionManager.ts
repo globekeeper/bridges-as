@@ -1,7 +1,7 @@
 import { Logger } from "matrix-appservice-bridge";
 import { BridgeConfigMqtt } from "../config/Config";
 import { Pool } from "pg";
-import { SelectSpaceConnectionsArgs, selectSpaceConnections, selectConnection, insertConnection, updateConnectionAssociatedSpaces, deleteSpaceFromConnectionAndPrune, selectAllConnections } from "../db/generated/queries_sql";
+import { selectConnection, insertConnection, updateConnectionAssociatedSpaces, deleteSpaceFromConnectionAndPrune } from "../db/generated/queries_sql";
 import axios from "axios";
 import "dotenv/config";
 import { MqttConnectionState } from "../Connections/MqttConnection";
@@ -9,11 +9,10 @@ import * as fs from 'fs';
 
 const log = new Logger("MqttConnectionsManager");
 
-function executeSchema(dbCli: Pool) {
+export async function executeSchema(dbCli: Pool) {
     try {
-        const schemaSql = fs.readFileSync('./src/db/schema.sql', 'utf8');
-        dbCli.query(schemaSql);
-        log.info('MQTT table created successfully');
+        const schemaSql = fs.readFileSync('./db/schema.sql', 'utf8');
+        await dbCli.query(schemaSql);
     } catch (err) {
         log.info('Error creating MQTT table: ', err);
     }
@@ -24,6 +23,7 @@ export class MqttConnectionsManager {
 
     constructor() {
         this.dbCli = new Pool({ connectionString: process.env.DATABASE_URL });
+        log.info('MqttConnectionsManager: initialized database connection');
         executeSchema(this.dbCli);
     }
     

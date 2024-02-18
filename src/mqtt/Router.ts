@@ -1,9 +1,10 @@
-import { BridgeConfigMqtt, BridgeConfigProvisioning } from "../config/Config";
+import { BridgeConfigProvisioning } from "../config/Config";
 import { Router, Request, Response, NextFunction } from "express";
 import { Logger } from "matrix-appservice-bridge";
 import { ApiError, ErrCode } from "../api";
 import { selectAllConnections } from "../db/generated/queries_sql";
 import { Pool } from "pg";
+import { executeSchema } from "./mqttConnectionManager";
 
 const log = new Logger("MqttRouter");
 
@@ -15,7 +16,6 @@ export interface AdaptedMqttLiveConnection {
     spaces_ids: string[];
 }
 
-
 export class MqttProvisionerRouter {
     private dbCli: Pool;
     
@@ -23,6 +23,8 @@ export class MqttProvisionerRouter {
         private readonly provConfig: BridgeConfigProvisioning) {
             this.provConfig = provConfig;
             this.dbCli = new Pool({ connectionString: process.env.DATABASE_URL });
+            log.info('mqtt_router: initialized database connection');
+            executeSchema(this.dbCli);
         }
 
     public getRouter() {

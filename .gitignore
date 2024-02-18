@@ -1,3 +1,4 @@
+.env
 config.yml
 lib/
 node_modules/

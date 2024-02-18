@@ -24,7 +24,7 @@ export class Provisioner {
         private readonly botUsersManager: BotUsersManager,
         private readonly as: Appservice,
         additionalRoutes: {route: string, router: Router}[]) {
-        this.expressRouter.use("/bridge", (req, _res, next) => {
+        this.expressRouter.use("/provisioner", (req, _res, next) => {
             Metrics.provisioningHttpRequest.inc({path: req.path, method: req.method});
             next();
         });
@@ -42,44 +42,44 @@ export class Provisioner {
             maxAge: 86400, // 24 hours
         };
         this.expressRouter.use(cors(corsOptions));
-        this.expressRouter.get("/bridge/health", this.getHealth);
-        this.expressRouter.use("/bridge", this.checkAuth.bind(this));
+        this.expressRouter.get("/provisioner/health", this.getHealth);
+        this.expressRouter.use("/provisioner", this.checkAuth.bind(this));
         this.expressRouter.use(express.json());
         this.expressRouter.get(
-            "/bridge/connectiontypes",
+            "/provisioner/connectiontypes",
             this.getConnectionTypes.bind(this),
         );
-        this.expressRouter.use("/bridge", this.checkUserId.bind(this));
+        this.expressRouter.use("/provisioner", this.checkUserId.bind(this));
         additionalRoutes.forEach(route => {
             this.expressRouter.use(route.route, route.router);
         });
         // Room Routes
         this.expressRouter.get<{roomId: string}, unknown, unknown, {userId: string}>(
-            "/bridge/:roomId/connections",
+            "/provisioner/:roomId/connections",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("read", ...args),
             this.getConnections.bind(this),
         );
         this.expressRouter.get<{roomId: string, connectionId: string}, unknown, unknown, {userId: string}>(
-            "/bridge/:roomId/connections/:connectionId",
+            "/provisioner/:roomId/connections/:connectionId",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("read", ...args),
             this.getConnection.bind(this),
         );
         this.expressRouter.put<{roomId: string, type: string}, unknown, Record<string, unknown>, {userId: string}>(
-            "/bridge/:roomId/connections/:type",
+            "/provisioner/:roomId/connections/:type",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("write", ...args),
             this.putConnection.bind(this),
         );
         this.expressRouter.patch<{roomId: string, connectionId: string}, unknown, Record<string, unknown>, {userId: string}>(
-            "/bridge/:roomId/connections/:connectionId",
+            "/provisioner/:roomId/connections/:connectionId",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("write", ...args),
             this.patchConnection.bind(this),
         );
         this.expressRouter.delete<{roomId: string, connectionId: string}, unknown, unknown, {userId: string}>(
-            "/bridge/:roomId/connections/:connectionId",
+            "/provisioner/:roomId/connections/:connectionId",
             this.checkRoomId.bind(this),
             (...args) => this.checkUserPermission("write", ...args),
             this.deleteConnection.bind(this),
