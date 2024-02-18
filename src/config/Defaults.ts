@@ -101,12 +101,6 @@ export const DefaultConfigRoot: BridgeConfigRoot = {
             redirect_uri: `${hookshotWebhooksUrl}/bridge_oauth/`,
         },
     },
-    bridgeAuth: {
-        enabled: false,
-        enableHttpGet: false,
-        urlPrefix: `${hookshotWebhooksUrl}/bridge_auth/`,
-        domain: serverName,
-    },
     generic: {
         allowJsTransformationFunctions: false,
         enabled: false,
@@ -114,6 +108,16 @@ export const DefaultConfigRoot: BridgeConfigRoot = {
         urlPrefix: `${hookshotWebhooksUrl}/webhook/`,
         userIdPrefix: "_webhooks_",
         waitForComplete: false,
+    },
+    bridgeAuth: {
+        enabled: false,
+        enableHttpGet: false,
+        urlPrefix: `${hookshotWebhooksUrl}/bridge_auth/`,
+        domain: serverName,
+    },
+    mqtt: {
+        enabled: false,
+        mqttasAddress: "http://localhost:8585",
     },
     figma: {
         publicUrl: `${hookshotWebhooksUrl}/hookshot/`,

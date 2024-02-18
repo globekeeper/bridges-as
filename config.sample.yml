@@ -32,6 +32,10 @@ listeners:
     resources:
       - metrics
       - provisioning
+  - port: 9002
+    bindAddress: 0.0.0.0
+    resources:
+      - widgets
 
 #github:
 #  # (Optional) Configure this to enable GitHub support
@@ -91,6 +95,18 @@ listeners:
 #    client_secret: bar
 #    redirect_uri: https://example.com/bridge_oauth/
 
+#mqtt:
+#  # (Optional) Support for MQTT integration
+#  enabled: false
+#  mqttasAddress: http://localhost:8585
+
+#bridgeAuth:
+#  # (Optional) Support for external auth events
+#  enabled: false
+#  enableHttpGet: false
+#  domain: example.com
+#  urlPrefix: https://example.com/bridge_auth/
+
 #generic:
 #  # (Optional) Support for generic webhook events.
 #  #'allowJsTransformationFunctions' will allow users to write short transformation snippets in code, and thus is unsafe in untrusted environments
@@ -101,18 +117,6 @@ listeners:
 #  userIdPrefix: _webhooks_
 #  allowJsTransformationFunctions: false
 #  waitForComplete: false
-
-#bridgeAuth:
-#  # (Optional) Support for external auth events
-#  enabled: false
-#  enableHttpGet: false
-#  domain: example.com
-#  urlPrefix: https://example.com/bridge_auth/
-
-#mqtt:
-#  # (Optional) Support for MQTT connections management API
-#  enabled: false
-#  mqttasAddress: http://mqttas:8585
 
 #feeds:
 #  # (Optional) Configure this to enable RSS/Atom feed support
