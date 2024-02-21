@@ -195,8 +195,8 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         }
     }
 
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.bridge_auth.hook";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.bridge_auth.hook";
+    static readonly CanonicalEventType = "gk.bridgeas.bridge_auth.hook";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.bridge_auth.hook";
     static readonly ServiceCategory = "bridgeAuth";
 
     static readonly EventTypes = [
@@ -204,7 +204,6 @@ export class BridgeAuthConnection extends BaseConnection implements IConnection 
         BridgeAuthConnection.LegacyCanonicalEventType,
     ];
 
-    private transformationFunction?: string;
     private cachedDisplayname?: string;
     /**
      * @param state Should be a pre-validated state object returned by {@link validateState}

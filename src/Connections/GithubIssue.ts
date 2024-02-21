@@ -40,8 +40,8 @@ interface IQueryRoomOpts {
  */
 @Connection
 export class GitHubIssueConnection extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.github.issue";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.bridge";
+    static readonly CanonicalEventType = "gk.bridgeas.github.issue";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.bridge";
 
     static readonly EventTypes = [
         GitHubIssueConnection.CanonicalEventType,

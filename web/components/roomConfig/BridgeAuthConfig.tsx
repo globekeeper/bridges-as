@@ -102,7 +102,7 @@ export const BridgeAuthConfig: BridgeConfig = ({ api, roomId, showHeader }) => {
         api={api}
         roomId={roomId}
         type="bridge_auth"
-        connectionEventType="uk.half-shot.matrix-hookshot.bridge_auth.hook"
+        connectionEventType="gk.bridgeas.bridge_auth.hook"
         text={RoomConfigText}
         listItemName={RoomConfigListItemFunc}
         connectionConfigComponent={ConnectionConfiguration}

@@ -1,3 +1,5 @@
+<!-- TODO-GK: Adjust this -->
+
 Provisioning API for matrix-hookshot
 -----------------------------
 
@@ -43,7 +45,7 @@ Request the connection types enabled for this bridge.
 {
     "JiraProject": {
         "type": "JiraProject", // The name of the connection
-        "eventType": "uk.half-shot.matrix-hookshot.jira.project", // Corresponds to the state type for the connection
+        "eventType": "gk.bridgeas.jira.project", // Corresponds to the state type for the connection
         "service": "jira", // or github, webhook. A human-readable service name to make things look pretty
         "botUserId": "@hookshot:yourdomain.com", // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
     }
@@ -59,7 +61,7 @@ Request the connections for a given room. The `{roomId}` parameter is the target
 ```json5
 [{
     "type": "JiraProject", // The name of the connection
-    "eventType": "uk.half-shot.matrix-hookshot.jira.project", // Corresponds to the state type in the connection
+    "eventType": "gk.bridgeas.jira.project", // Corresponds to the state type in the connection
     "id": "opaque-unique-id", // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     "service": "jira", // or github, webhook. A human-readable service name to make things look pretty
     "botUserId": "@hookshot:yourdomain.com", // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
@@ -79,7 +81,7 @@ Request details of a single connection. The `{roomId}` parameter is the target M
 ```json5
 {
     "type": "JiraProject", // The name of the connection
-    "eventType": "uk.half-shot.matrix-hookshot.jira.project", // Corresponds to the state type in the connection
+    "eventType": "gk.bridgeas.jira.project", // Corresponds to the state type in the connection
     "id": "opaque-unique-id", // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     "service": "jira", // or github, webhook. A human-readable service name to make things look pretty
     "botUserId": "@hookshot:yourdomain.com", // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
@@ -107,7 +109,7 @@ The body of the request is the configuration for the connection, which will be t
 ```json5
 {
     "type": "JiraProject", // The name of the connection
-    "eventType": "uk.half-shot.matrix-hookshot.jira.project", // Corresponds to the state type in the connection
+    "eventType": "gk.bridgeas.jira.project", // Corresponds to the state type in the connection
     "id": "opaque-unique-id", // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     "service": "jira", // or github, webhook. A human-readable service name to make things look pretty
     "botUserId": "@hookshot:yourdomain.com", // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
@@ -135,7 +137,7 @@ The body of the request is the configuration for the connection, which will be t
 {
 
     "type": "JiraProject", // The name of the connection
-    "eventType": "uk.half-shot.matrix-hookshot.jira.project", // Corresponds to the state type in the connection
+    "eventType": "gk.bridgeas.jira.project", // Corresponds to the state type in the connection
     "id": "opaque-unique-id", // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     "service": "jira", // or github, webhook. A human-readable service name to make things look pretty
     "botUserId": "@hookshot:yourdomain.com", // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.

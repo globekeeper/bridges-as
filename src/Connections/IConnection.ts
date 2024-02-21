@@ -9,6 +9,7 @@ import { MessageSenderClient } from "../MatrixSender";
 import { IBridgeStorageProvider } from "../Stores/StorageProvider";
 import { GithubInstance } from "../github/GithubInstance";
 import "reflect-metadata";
+import { Pool } from "pg";
 
 export type PermissionCheckFn = (service: string, level: BridgePermissionLevel) => boolean;
 
@@ -108,6 +109,7 @@ export interface InstantiateConnectionOpts {
     messageClient: MessageSenderClient,
     storage: IBridgeStorageProvider,
     github?: GithubInstance,
+    dbCli?: Pool,
 }
 export interface ProvisionConnectionOpts extends InstantiateConnectionOpts {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

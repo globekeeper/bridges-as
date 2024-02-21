@@ -207,8 +207,8 @@ export class GenericHookConnection extends BaseConnection implements IConnection
         }
     }
 
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.generic.hook";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.generic.hook";
+    static readonly CanonicalEventType = "gk.bridgeas.generic.hook";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.generic.hook";
     static readonly ServiceCategory = "generic";
 
     static readonly EventTypes = [
@@ -459,7 +459,7 @@ export class GenericHookConnection extends BaseConnection implements IConnection
                 // render can output redundant trailing newlines, so trim it.
                 formatted_body: content.html || md.render(content.plain).trim(),
                 format: "org.matrix.custom.html",
-                "uk.half-shot.hookshot.webhook_data": safeData,
+                "gk.bridgeas.hookshot.webhook_data": safeData,
             }, 'm.room.message', sender);
         }
 

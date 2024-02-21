@@ -337,13 +337,13 @@ interface IPushEventContent {
     msgtype: "m.notice",
     format: "org.matrix.custom.html",
     external_url: string,
-    "uk.half-shot.matrix-hookshot.github.push": {
+    "gk.bridgeas.github.push": {
         commits: string[],
         ref: string,
         base_ref: string|null,
         pusher: string,
     },
-    "uk.half-shot.matrix-hookshot.github.repo": GitHubRepoMessageBody["uk.half-shot.matrix-hookshot.github.repo"],
+    "gk.bridgeas.github.repo": GitHubRepoMessageBody["gk.bridgeas.github.repo"],
 }
 
 function compareEmojiStrings(e0: string, e1: string, e0Index = 0) {
@@ -445,8 +445,8 @@ export class GitHubRepoConnection extends CommandConnection<GitHubRepoConnection
         }
     }
 
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.github.repository";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.repository";
+    static readonly CanonicalEventType = "gk.bridgeas.github.repository";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.repository";
     static readonly EventTypes = [
         GitHubRepoConnection.CanonicalEventType,
         GitHubRepoConnection.LegacyCanonicalEventType,
@@ -689,8 +689,8 @@ export class GitHubRepoConnection extends CommandConnection<GitHubRepoConnection
         }
         const body = ev.content.body?.trim();
         if (reply) {
-            const repoInfo = reply.realEvent.content["uk.half-shot.matrix-hookshot.github.repo"];
-            const pullRequestId = reply.realEvent.content["uk.half-shot.matrix-hookshot.github.pull_request"]?.number;
+            const repoInfo = reply.realEvent.content["gk.bridgeas.github.repo"];
+            const pullRequestId = reply.realEvent.content["gk.bridgeas.github.pull_request"]?.number;
             // Emojis can be multi-byte, so make sure we split properly
             const reviewKey = Object.keys(EMOJI_TO_REVIEW_STATE).find(
                 (k) => k.includes(
@@ -1287,7 +1287,7 @@ export class GitHubRepoConnection extends CommandConnection<GitHubRepoConnection
         if (evt.type === 'm.reaction') {
             const {event_id, key} = (evt.content as MatrixReactionContent)["m.relates_to"];
             const ev = await this.intent.underlyingClient.getEvent(this.roomId, event_id);
-            const issueContent = ev.content["uk.half-shot.matrix-hookshot.github.issue"];
+            const issueContent = ev.content["gk.bridgeas.github.issue"];
             if (!issueContent) {
                 log.debug('Reaction to event did not pertain to a issue');
                 return; // Not our event.
@@ -1336,7 +1336,7 @@ export class GitHubRepoConnection extends CommandConnection<GitHubRepoConnection
         const eventContent: IPushEventContent = {
             ...FormatUtil.getPartialBodyForGithubRepo(event.repository),
             external_url: event.compare,
-            "uk.half-shot.matrix-hookshot.github.push": {
+            "gk.bridgeas.github.push": {
                 commits: event.commits.map(c => c.id),
                 pusher: `${event.pusher.name} <${event.pusher.email}>`,
                 ref: event.ref,

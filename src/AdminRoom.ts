@@ -25,13 +25,13 @@ type ProjectsListForUserResponseData = Endpoints["GET /users/{username}/projects
 const md = new markdown();
 const log = new Logger('AdminRoom');
 
-export const LEGACY_BRIDGE_ROOM_TYPE = "uk.half-shot.matrix-github.room";
-export const LEGACY_BRIDGE_NOTIF_TYPE = "uk.half-shot.matrix-github.notif_state";
-export const LEGACY_BRIDGE_GITLAB_NOTIF_TYPE = "uk.half-shot.matrix-github.gitlab.notif_state";
+export const LEGACY_BRIDGE_ROOM_TYPE = "gk.bridgeas.matrix-github.room";
+export const LEGACY_BRIDGE_NOTIF_TYPE = "gk.bridgeas.matrix-github.notif_state";
+export const LEGACY_BRIDGE_GITLAB_NOTIF_TYPE = "gk.bridgeas.matrix-github.gitlab.notif_state";
 
-export const BRIDGE_ROOM_TYPE = "uk.half-shot.matrix-hookshot.github.room";
-export const BRIDGE_NOTIF_TYPE = "uk.half-shot.matrix-hookshot.github.notif_state";
-export const BRIDGE_GITLAB_NOTIF_TYPE = "uk.half-shot.matrix-hookshot.gitlab.notif_state";
+export const BRIDGE_ROOM_TYPE = "gk.bridgeas.github.room";
+export const BRIDGE_NOTIF_TYPE = "gk.bridgeas.github.notif_state";
+export const BRIDGE_GITLAB_NOTIF_TYPE = "gk.bridgeas.gitlab.notif_state";
 export class AdminRoom extends AdminRoomCommandHandler {
     public static helpMessage: HelpFunction;
     protected widgetAccessToken = `abcdef`;

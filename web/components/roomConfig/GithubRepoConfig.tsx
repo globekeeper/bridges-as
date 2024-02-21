@@ -11,7 +11,7 @@ import ConnectionSearch from "../elements/ConnectionSearch";
 import { ServiceAuth } from "./Auth";
 import { GetAuthResponse } from "../../../src/Widgets/BridgeWidgetInterface";
 
-const EventType = "uk.half-shot.matrix-hookshot.github.repository";
+const EventType = "gk.bridgeas.github.repository";
 
 function getRepoFullName(state: GitHubRepoConnectionState) {
     return `${state.org}/${state.repo}`;

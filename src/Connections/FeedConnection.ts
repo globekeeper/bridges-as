@@ -49,7 +49,7 @@ const DEFAULT_TEMPLATE_WITH_ONLY_TITLE = "New post in $FEEDNAME: $TITLE"
 
 @Connection
 export class FeedConnection extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.feed";
+    static readonly CanonicalEventType = "gk.bridgeas.feed";
     static readonly EventTypes = [ FeedConnection.CanonicalEventType ];
     static readonly ServiceCategory = "feeds";
     
@@ -221,7 +221,7 @@ export class FeedConnection extends BaseConnection implements IConnection {
             formatted_body: md.renderInline(message),
             body: message,
             external_url: entry.link ?? undefined,
-            "uk.half-shot.matrix-hookshot.feeds.item": entry,
+            "gk.bridgeas.feeds.item": entry,
         });
     }
 

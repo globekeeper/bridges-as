@@ -21,8 +21,8 @@ export interface GitHubDiscussionSpaceConnectionState {
  */
 @Connection
 export class GitHubDiscussionSpace extends BaseConnection implements IConnection {
-    static readonly CanonicalEventType = "uk.half-shot.matrix-hookshot.github.discussion.space";
-    static readonly LegacyCanonicalEventType = "uk.half-shot.matrix-github.discussion.space";
+    static readonly CanonicalEventType = "gk.bridgeas.github.discussion.space";
+    static readonly LegacyCanonicalEventType = "gk.bridgeas.matrix-github.discussion.space";
 
     static readonly EventTypes = [
         GitHubDiscussionSpace.CanonicalEventType,

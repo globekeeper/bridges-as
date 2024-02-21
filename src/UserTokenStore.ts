@@ -18,12 +18,12 @@ import { JiraCloudClient } from "./jira/client/CloudClient";
 import { TokenError, TokenErrorCode } from "./errors";
 import { TypedEmitter } from "tiny-typed-emitter";
 
-const ACCOUNT_DATA_TYPE = "uk.half-shot.matrix-hookshot.github.password-store:";
-const ACCOUNT_DATA_GITLAB_TYPE = "uk.half-shot.matrix-hookshot.gitlab.password-store:";
-const ACCOUNT_DATA_JIRA_TYPE = "uk.half-shot.matrix-hookshot.jira.password-store:";
+const ACCOUNT_DATA_TYPE = "gk.bridgeas.github.password-store:";
+const ACCOUNT_DATA_GITLAB_TYPE = "gk.bridgeas.gitlab.password-store:";
+const ACCOUNT_DATA_JIRA_TYPE = "gk.bridgeas.jira.password-store:";
 
-const LEGACY_ACCOUNT_DATA_TYPE = "uk.half-shot.matrix-github.password-store:";
-const LEGACY_ACCOUNT_DATA_GITLAB_TYPE = "uk.half-shot.matrix-github.gitlab.password-store:";
+const LEGACY_ACCOUNT_DATA_TYPE = "gk.bridgeas.matrix-github.password-store:";
+const LEGACY_ACCOUNT_DATA_GITLAB_TYPE = "gk.bridgeas.matrix-github.gitlab.password-store:";
 
 const log = new Logger("UserTokenStore");
 export type TokenType = "github"|"gitlab"|"jira";

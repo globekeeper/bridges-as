@@ -17,8 +17,8 @@ export interface NotificationFilterStateContent {
  * A notification filter is a set of keys that define what should be sent to the user.
  */
 export class NotifFilter {
-    static readonly StateType = "uk.half-shot.matrix-github.notif-filter";
-    static readonly LegacyStateType = "uk.half-shot.matrix-hookshot.notif-filter";
+    static readonly StateType = "gk.bridgeas.matrix-github.notif-filter";
+    static readonly LegacyStateType = "gk.bridgeas.notif-filter";
 
     static getDefaultContent(): NotificationFilterStateContent {
         return {

@@ -25,7 +25,7 @@ async function testSimpleWebhook(connection: GenericHookConnection, mq: LocalMQ,
             format: "org.matrix.custom.html",
             formatted_body: "<p>Received webhook data:</p><p><pre><code class=\\\"language-json\\\">{\n  \"simple\": \"" + testValue + "\"\n}</code></pre></p>",
             msgtype: "m.notice",
-            "uk.half-shot.hookshot.webhook_data": webhookData,
+            "gk.bridgeas.hookshot.webhook_data": webhookData,
         },
         type: 'm.room.message',
     });
@@ -82,7 +82,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<p>simple-message</p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -100,7 +100,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<p><strong>bold-message</strong> <em>italic-message</em></p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -118,7 +118,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<h1>Oh wow</h1>\n<p><code>some-code</code></p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -136,7 +136,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<b>simple-message</b>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -154,7 +154,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<strong>Bobs-integration</strong>: <p>Received webhook data:</p><p><pre><code class=\\\"language-json\\\">{\n  \"username\": \"Bobs-integration\",\n  \"type\": 42\n}</code></pre></p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -177,7 +177,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<p>Received webhook: The answer to 'What is the meaning of life?' is 42</p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -200,7 +200,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<p>The answer to 'What is the meaning of life?' is 42</p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -223,7 +223,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<p>The answer to 'What is the meaning of life?' is 42</p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -246,7 +246,7 @@ describe("GenericHookConnection", () => {
                 format: "org.matrix.custom.html",
                 formatted_body: "<p>Webhook received but failed to process via transformation function</p>",
                 msgtype: "m.notice",
-                "uk.half-shot.hookshot.webhook_data": webhookData,
+                "gk.bridgeas.hookshot.webhook_data": webhookData,
             },
             type: 'm.room.message',
         });
@@ -258,7 +258,7 @@ describe("GenericHookConnection", () => {
         let message = await messagePromise;
         expect(message.roomId).to.equal(ROOM_ID);
         expect(message.sender).to.equal(connection.getUserId());
-        expect(message.content["uk.half-shot.hookshot.webhook_data"]).to.deep.equal({ simple: "1.2345" });
+        expect(message.content["gk.bridgeas.hookshot.webhook_data"]).to.deep.equal({ simple: "1.2345" });
 
         messagePromise = handleMessage(mq);
         await connection.onGenericHook({
@@ -273,7 +273,7 @@ describe("GenericHookConnection", () => {
         message = await messagePromise;
         expect(message.roomId).to.equal(ROOM_ID);
         expect(message.sender).to.equal(connection.getUserId());
-        expect(message.content["uk.half-shot.hookshot.webhook_data"]).to.deep.equal({ a: { deep: { object: { containing: "1.2345" }}} });
+        expect(message.content["gk.bridgeas.hookshot.webhook_data"]).to.deep.equal({ a: { deep: { object: { containing: "1.2345" }}} });
 
         messagePromise = handleMessage(mq);
         await connection.onGenericHook({
@@ -283,7 +283,7 @@ describe("GenericHookConnection", () => {
         message = await messagePromise;
         expect(message.roomId).to.equal(ROOM_ID);
         expect(message.sender).to.equal(connection.getUserId());
-        expect(message.content["uk.half-shot.hookshot.webhook_data"]).to.deep.equal({
+        expect(message.content["gk.bridgeas.hookshot.webhook_data"]).to.deep.equal({
             an_array_of: ["1.2345", "6.789"],
             floats: true,
         });

@@ -42,6 +42,8 @@ import { SetupWidget } from "./Widgets/SetupWidget";
 import { FeedEntry, FeedError, FeedReader, FeedSuccess } from "./feeds/FeedReader";
 import PQueue from "p-queue";
 import * as Sentry from '@sentry/node';
+import { MqttConnection } from "./Connections/MqttConnection";
+import { MqttProvisionerRouter } from "./mqtt/Router";
 
 const log = new Logger("Bridge");
 
@@ -139,14 +141,14 @@ export class Bridge {
             const routers = [];
             if (this.config.jira) {
                 routers.push({
-                    route: "/v1/jira",
+                    route: "/provisioner/jira",
                     router: new JiraProvisionerRouter(this.config.jira, this.tokenStore).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(JiraProjectConnection);
             }
             if (this.config.github && this.github) {
                 routers.push({
-                    route: "/v1/github",
+                    route: "/provisioner/github",
                     router: new GitHubProvisionerRouter(this.config.github, this.tokenStore, this.github).getRouter(),
                 });
                 this.connectionManager.registerProvisioningConnection(GitHubRepoConnection);
@@ -156,6 +158,14 @@ export class Bridge {
             }
             if (this.config.bridgeAuth) {
                 this.connectionManager.registerProvisioningConnection(BridgeAuthConnection);
+            }
+            if (this.config.mqtt?.enabled) {
+                // Register the internal backend route for get all live connections
+                routers.push({
+                    route: "/provisioner/mqtt",
+                    router: new MqttProvisionerRouter(this.config.provisioning).getRouter(),
+                });
+                this.connectionManager.registerProvisioningConnection(MqttConnection);
             }
             this.provisioningApi = new Provisioner(
                 this.config.provisioning,
@@ -1067,8 +1077,8 @@ export class Bridge {
             // This might be a reply to a notification
             try {
                 const ev = processedReplyMetadata.realEvent;
-                const splitParts: string[] = ev.content["uk.half-shot.matrix-hookshot.github.repo"]?.name.split("/");
-                const issueNumber = ev.content["uk.half-shot.matrix-hookshot.github.issue"]?.number;
+                const splitParts: string[] = ev.content["gk.bridgeas.github.repo"]?.name.split("/");
+                const issueNumber = ev.content["gk.bridgeas.github.issue"]?.number;
                 if (splitParts && issueNumber) {
                     log.info(`Handling reply for ${splitParts}${issueNumber}`);
                     const connections = this.connectionManager.getConnectionsForGithubIssue(splitParts[0], splitParts[1], issueNumber);

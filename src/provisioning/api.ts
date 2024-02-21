@@ -23,6 +23,15 @@ export interface GetConnectionsResponseItem<Config = object, Secrets = object> e
     warning?: ConnectionWarning;
 }
 
+// For middleware: Instead of requiring userId in query params, we interpret the request user from the auth token.
+declare module "express-serve-static-core" {
+    interface Request {
+        local: {
+            userId?: string;
+        };
+    }
+}
+
 const log = new Logger("Provisioner.api");
 
 export async function assertUserPermissionsInRoom(userId: string, roomId: string, requiredPermission: "read"|"write", intent: Intent) {

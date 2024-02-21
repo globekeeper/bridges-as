@@ -9,7 +9,7 @@ import JiraIcon from "../../icons/jira.png";
 import ConnectionSearch from "../elements/ConnectionSearch";
 import { DropItem } from "../elements/DropdownSearch";
 
-const EventType = "uk.half-shot.matrix-hookshot.jira.project";
+const EventType = "gk.bridgeas.jira.project";
 
 const ConnectionConfiguration: FunctionComponent<ConnectionConfigurationProps<never, JiraProjectResponseItem, JiraProjectConnectionState>> = ({api, existingConnection, onSave, onRemove, isUpdating }) => {
     const [allowedEvents, setAllowedEvents] = useState<string[]>(existingConnection?.config.events || ['issue_created']);

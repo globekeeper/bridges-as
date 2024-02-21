@@ -43,11 +43,11 @@ pub struct JiraIssueSimpleItem {
 #[derive(Serialize, Debug, Deserialize)]
 #[napi(object)]
 pub struct JiraIssueMessageBody {
-    #[serde(rename = "uk.half-shot.matrix-hookshot.jira.issue")]
-    #[napi(js_name = "uk.half-shot.matrix-hookshot.jira.issue")]
+    #[serde(rename = "gk.bridgeas.jira.issue")]
+    #[napi(js_name = "gk.bridgeas.jira.issue")]
     pub jira_issue: JiraIssueSimpleItem,
-    #[serde(rename = "uk.half-shot.matrix-hookshot.jira.project")]
-    #[napi(js_name = "uk.half-shot.matrix-hookshot.jira.project")]
+    #[serde(rename = "gk.bridgeas.jira.project")]
+    #[napi(js_name = "gk.bridgeas.jira.project")]
     pub jira_project: JiraIssueSimpleItem,
     #[napi(js_name = "external_url")]
     pub external_url: String,

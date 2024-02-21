@@ -100,7 +100,7 @@ export const FeedsConfig: BridgeConfig = ({ api, roomId, showHeader }) => {
         api={api}
         roomId={roomId}
         type="feeds"
-        connectionEventType="uk.half-shot.matrix-hookshot.feed"
+        connectionEventType="gk.bridgeas.feed"
         text={roomConfigText}
         listItemName={RoomConfigListItemFunc}
         connectionConfigComponent={ConnectionConfiguration}
