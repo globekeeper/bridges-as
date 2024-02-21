@@ -152,6 +152,7 @@
                     <main>
                         <h1 id="provisioning"><a class="header" href="#provisioning">Provisioning</a></h1>
 <p>This section is not complete yet for end users. For developers, you can read the documentation for the API below:</p>
+<!-- TODO-GK: Adjust this -->
 <h2 id="provisioning-api-for-matrix-hookshot"><a class="header" href="#provisioning-api-for-matrix-hookshot">Provisioning API for matrix-hookshot</a></h2>
 <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
 <p>This document describes how to integrate with <code>matrix-hookshot</code>'s provisioning API.</p>
@@ -177,7 +178,7 @@ Authorization: Bearer secret
 <pre><code class="language-json5">{
     &quot;JiraProject&quot;: {
         &quot;type&quot;: &quot;JiraProject&quot;, // The name of the connection
-        &quot;eventType&quot;: &quot;uk.half-shot.matrix-hookshot.jira.project&quot;, // Corresponds to the state type for the connection
+        &quot;eventType&quot;: &quot;gk.bridgeas.jira.project&quot;, // Corresponds to the state type for the connection
         &quot;service&quot;: &quot;jira&quot;, // or github, webhook. A human-readable service name to make things look pretty
         &quot;botUserId&quot;: &quot;@hookshot:yourdomain.com&quot;, // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
     }
@@ -188,7 +189,7 @@ Authorization: Bearer secret
 <h3 id="response-2"><a class="header" href="#response-2">Response</a></h3>
 <pre><code class="language-json5">[{
     &quot;type&quot;: &quot;JiraProject&quot;, // The name of the connection
-    &quot;eventType&quot;: &quot;uk.half-shot.matrix-hookshot.jira.project&quot;, // Corresponds to the state type in the connection
+    &quot;eventType&quot;: &quot;gk.bridgeas.jira.project&quot;, // Corresponds to the state type in the connection
     &quot;id&quot;: &quot;opaque-unique-id&quot;, // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     &quot;service&quot;: &quot;jira&quot;, // or github, webhook. A human-readable service name to make things look pretty
     &quot;botUserId&quot;: &quot;@hookshot:yourdomain.com&quot;, // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
@@ -202,7 +203,7 @@ Authorization: Bearer secret
 <h3 id="response-3"><a class="header" href="#response-3">Response</a></h3>
 <pre><code class="language-json5">{
     &quot;type&quot;: &quot;JiraProject&quot;, // The name of the connection
-    &quot;eventType&quot;: &quot;uk.half-shot.matrix-hookshot.jira.project&quot;, // Corresponds to the state type in the connection
+    &quot;eventType&quot;: &quot;gk.bridgeas.jira.project&quot;, // Corresponds to the state type in the connection
     &quot;id&quot;: &quot;opaque-unique-id&quot;, // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     &quot;service&quot;: &quot;jira&quot;, // or github, webhook. A human-readable service name to make things look pretty
     &quot;botUserId&quot;: &quot;@hookshot:yourdomain.com&quot;, // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
@@ -222,7 +223,7 @@ Authorization: Bearer secret
 <h3 id="response-4"><a class="header" href="#response-4">Response</a></h3>
 <pre><code class="language-json5">{
     &quot;type&quot;: &quot;JiraProject&quot;, // The name of the connection
-    &quot;eventType&quot;: &quot;uk.half-shot.matrix-hookshot.jira.project&quot;, // Corresponds to the state type in the connection
+    &quot;eventType&quot;: &quot;gk.bridgeas.jira.project&quot;, // Corresponds to the state type in the connection
     &quot;id&quot;: &quot;opaque-unique-id&quot;, // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     &quot;service&quot;: &quot;jira&quot;, // or github, webhook. A human-readable service name to make things look pretty
     &quot;botUserId&quot;: &quot;@hookshot:yourdomain.com&quot;, // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
@@ -243,7 +244,7 @@ Authorization: Bearer secret
 <pre><code class="language-json5">{
 
     &quot;type&quot;: &quot;JiraProject&quot;, // The name of the connection
-    &quot;eventType&quot;: &quot;uk.half-shot.matrix-hookshot.jira.project&quot;, // Corresponds to the state type in the connection
+    &quot;eventType&quot;: &quot;gk.bridgeas.jira.project&quot;, // Corresponds to the state type in the connection
     &quot;id&quot;: &quot;opaque-unique-id&quot;, // An opaque ID used to refer to this connection. Should **NOT** be assumed to be stable.
     &quot;service&quot;: &quot;jira&quot;, // or github, webhook. A human-readable service name to make things look pretty
     &quot;botUserId&quot;: &quot;@hookshot:yourdomain.com&quot;, // The bot mxid for the service. Currently, this is the sender_localpart, but may change in the future.
